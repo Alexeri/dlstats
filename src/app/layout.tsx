@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Sofia_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
+import Providers from "@/app/providers";
 
 const sofiaSans = Sofia_Sans({
   subsets: ["latin"],
@@ -22,11 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${sofiaSans.className} antialiased`}
-      >
-        <Navbar/>
-        {children}
+      <body className={`${sofiaSans.className} antialiased`}>
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
       </body>
     </html>
   );
