@@ -5,7 +5,7 @@ import Link from "next/link";
 const links = [
   { href: "/heroes", label: "Heroes" },
   { href: "/matches", label: "Matches" },
-  { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/leaderboards", label: "Leaderboards" },
 ];
 
 export default function Navbar() {
