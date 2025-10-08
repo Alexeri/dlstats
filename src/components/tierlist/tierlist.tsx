@@ -1,7 +1,8 @@
 "use client";
 import { getQueryClient } from "@/app/get-query-client";
+import TierlistTable from "@/components/tierlist/tierlist-table";
 import { getTierListData } from "@/lib/data/heroes";
-import { CombinedHeroData} from "@/lib/types";
+import { CombinedHeroData } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Tierlist() {
@@ -16,13 +17,11 @@ export default function Tierlist() {
   if (!data) return <p>No data</p>;
 
   return (
-    <div>
-      {data.map((hero, i) => (
-        <div key={i}>
-          {hero.hero_id}
-          {hero.asset?.name}
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="my-4">
+        <h2 className="text-2xl text-white">Hero Tier List</h2>
+      </div>
+      <TierlistTable heroes={data} />
+    </>
   );
 }
