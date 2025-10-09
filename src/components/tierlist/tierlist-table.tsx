@@ -7,22 +7,31 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { CombinedHeroData } from "@/lib/types";
-import { formatHeroName } from "@/lib/utils";
+import { TieredHeroData } from "@/lib/types";
+import { cn, formatHeroName } from "@/lib/utils";
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
+  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 interface TierlistTableProps {
-  heroes: CombinedHeroData[];
+  heroes: TieredHeroData[];
 }
+
 export default function TierlistTable({ heroes }: TierlistTableProps) {
-  const columnHelper = createColumnHelper<CombinedHeroData>();
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "tier", desc: true },
+  ]);
+
+  const columnHelper = createColumnHelper<TieredHeroData>();
 
   const columns = [
     columnHelper.accessor((row) => row.asset?.name ?? `Hero #${row.hero_id}`, {
@@ -43,19 +52,53 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
                 />
               </div>
             )}
-            <span>{hero.asset?.name ?? `Hero #${hero.hero_id}`}</span>
+            <span className="font-semibold text-[16px]">
+              {hero.asset?.name ?? `Hero #${hero.hero_id}`}
+            </span>
           </div>
         );
       },
+      enableSorting: true,
     }),
+    columnHelper.accessor("tier", {
+      header: "Tier",
+      cell: (info) => {
+        const hero = info.row.original;
+        return (
+          <span
+            className={cn(
+              "text-lg font-bold",
+              hero.tier === "S+" && "text-amber-400",
+              hero.tier === "S" &&  "text-indigo-400",
+              hero.tier === "A" && "text-sky-400",
+              hero.tier === "B" && "text-emerald-400",
+              hero.tier === "C" && "text-orange-400",
+              hero.tier === "D" && "text-rose-400"
+            )}
+          >
+            {hero.tier}
+          </span>
+        );
+      },
+      sortingFn: (a, b) => {
+        const scoreA = a.original.score ?? 0;
+        const scoreB = b.original.score ?? 0;
+        return scoreA - scoreB;
+      },
+    }),
+    columnHelper.accessor("winRate", { header: "Winrate", }),
+    columnHelper.accessor("pickRate", { header: "Pickrate" }),
     columnHelper.accessor("matches", { header: "Matches" }),
-    columnHelper.accessor("wins", { header: "Wins" }),
-    columnHelper.accessor("losses", { header: "Losses" }),
   ];
   const table = useReactTable({
     data: heroes,
     columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
   return (
     <Table className="text-white border border-blk-500 rounded bg-blk-800/80">
@@ -63,12 +106,19 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow
             key={headerGroup.id}
-            className="grid auto-cols-fr grid-flow-col  hover:bg-blk-700 bg-blk-700 border-b-blk-500"
+            className="grid grid-cols-[100px_2fr_1fr_1fr_1fr_1fr] hover:bg-blk-700 bg-blk-700 border-b-blk-500"
           >
+            <TableHead className="flex items-center uppercase text-xs font-bold text-gray-400 select-none">
+              Rank
+            </TableHead>
             {headerGroup.headers.map((header) => (
               <TableHead
                 key={header.id}
-                className="text-white flex items-center uppercase text-xs font-bold"
+                className={cn(
+                  "flex items-center uppercase text-xs font-bold cursor-pointer select-none",
+                  header.column.getIsSorted() ? "text-white" : "text-gray-400"
+                )}
+                onClick={header.column.getToggleSortingHandler()}
               >
                 {header.isPlaceholder
                   ? null
@@ -76,13 +126,23 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
                       header.column.columnDef.header,
                       header.getContext()
                     )}
+
+                {header.column.getIsSorted() === "asc" && (
+                  <ChevronUp className="ml-1 w-3 h-3" />
+                )}
+                {header.column.getIsSorted() === "desc" && (
+                  <ChevronDown className="ml-1 w-3 h-3" />
+                )}
+                {header.column.getIsSorted() === false && (
+                  <ChevronsUpDown className="ml-1 w-3 h-3 text-gray-400" />
+                )}
               </TableHead>
             ))}
           </TableRow>
         ))}
       </TableHeader>
       <TableBody className="">
-        {table.getRowModel().rows.map((row) => {
+        {table.getRowModel().rows.map((row, rowIndex) => {
           const hero = row.original;
 
           return (
@@ -90,9 +150,12 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
               href={`/heroes/${formatHeroName(hero.asset?.name ?? "")}`}
               key={row.id}
             >
-              <TableRow className="grid auto-cols-fr grid-flow-col hover:bg-blk-700 border-b border-blk-700 transition-colors">
+              <TableRow className="grid grid-cols-[100px_2fr_1fr_1fr_1fr_1fr] hover:bg-blk-700 border-b border-blk-700 transition-colors">
+                <TableCell className="flex items-center">
+                  {rowIndex + 1}
+                </TableCell>
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="flex items-center">
+                  <TableCell key={cell.id} className="flex items-center font-semibold">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

@@ -2,12 +2,12 @@
 import { getQueryClient } from "@/app/get-query-client";
 import TierlistTable from "@/components/tierlist/tierlist-table";
 import { getTierListData } from "@/lib/data/heroes";
-import { CombinedHeroData } from "@/lib/types";
+import { TieredHeroData } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Tierlist() {
   const queryClient = getQueryClient();
-  const { data, isLoading, error } = useQuery<CombinedHeroData[], Error>({
+  const { data, isLoading, error } = useQuery<TieredHeroData[], Error>({
     queryKey: ["tierlist"],
     queryFn: () => getTierListData(queryClient),
   });

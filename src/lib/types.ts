@@ -14,3 +14,11 @@ export interface HeroAsset {
 export interface CombinedHeroData extends HeroWinRate {
   asset?: HeroAsset;
 }
+
+export interface TieredHeroData extends CombinedHeroData {
+  winRate: string;
+  pickRate: string;
+  score: number;
+  tier: string;
+  rank: number;
+}
