@@ -1,4 +1,5 @@
-import { CombinedHeroData, HeroAsset, HeroWinRate } from "@/lib/types";
+import { HeroAsset, HeroWinRate, TieredHeroData } from "@/lib/types";
+import { generateTierList } from "@/lib/utils";
 import { QueryClient } from "@tanstack/react-query";
 
 export async function getHeroWinRate(): Promise<HeroWinRate[]> {
@@ -30,7 +31,7 @@ export async function getAllHeroesAssets(): Promise<HeroAsset[]> {
 
 export async function getTierListData(
   queryClient: QueryClient
-): Promise<CombinedHeroData[]> {
+): Promise<TieredHeroData[]> {
   let heroAssets: HeroAsset[];
 
   if (queryClient) {
@@ -53,5 +54,8 @@ export async function getTierListData(
     return { ...stat, winRate, asset };
   });
 
-  return combined;
+  const totalMatches = heroStats.reduce((total, hero) => total + hero.matches, 0);
+  console.log(totalMatches);
+
+  return generateTierList(combined, totalMatches);
 }
