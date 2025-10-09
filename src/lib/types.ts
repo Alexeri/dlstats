@@ -8,7 +8,16 @@ export interface HeroWinRate {
 export interface HeroAsset {
   id: number;
   name: string;
+  description: {
+    playstyle: string;
+  };
   images: { icon_hero_card: string; icon_image_small: string };
+  items: {
+    signature1: string;
+    signature2: string;
+    signature3: string;
+    signature4: string;
+  };
 }
 
 export interface CombinedHeroData extends HeroWinRate {
@@ -21,4 +30,11 @@ export interface TieredHeroData extends CombinedHeroData {
   score: number;
   tier: string;
   rank: number;
+}
+
+export interface Item {
+  id: number;
+  class_name: string;
+  name: string;
+  image_webp: string;
 }

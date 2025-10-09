@@ -1,4 +1,4 @@
-import { HeroAsset, HeroWinRate, TieredHeroData } from "@/lib/types";
+import { HeroAsset, HeroWinRate, Item, TieredHeroData } from "@/lib/types";
 import { generateTierList } from "@/lib/utils";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -55,7 +55,32 @@ export async function getTierListData(
   });
 
   const totalMatches = heroStats.reduce((total, hero) => total + hero.matches, 0);
-  console.log(totalMatches);
 
   return generateTierList(combined, totalMatches);
+}
+
+
+export async function getHeroByName(name:string): Promise<HeroAsset> {
+  const res = await fetch(`https://assets.deadlock-api.com/v2/heroes/by-name/${name}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch hero: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function getHeroAbilities(heroId: number): Promise<Item[]> {
+  const res = await fetch(
+    `https://assets.deadlock-api.com/v2/items/by-hero-id/${heroId}`,
+    { cache: "no-store" }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch abilities for hero ${heroId}`);
+  }
+
+  return res.json();
 }

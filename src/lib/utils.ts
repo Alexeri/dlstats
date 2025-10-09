@@ -1,4 +1,4 @@
-import { CombinedHeroData, TieredHeroData } from "@/lib/types";
+import { CombinedHeroData, HeroAsset, Item, TieredHeroData } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -14,9 +14,6 @@ export function generateTierList(
   heroes: CombinedHeroData[],
   totalMatches?: number
 ): TieredHeroData[] {
-  /* const totalMatches = heroes.reduce((sum, h) => sum + h.matches, 0); */
-  console.log(totalMatches);
-
   // Find max values for normalization
   const maxPlayRate = Math.max(...heroes.map((h) => h.matches));
   const maxWinRate = Math.max(
@@ -71,4 +68,28 @@ function assignTier(score: number, winRate: number): string {
   if (score >= 0.8) return "B";
   if (score >= 0.5) return "C";
   return "D";
+}
+
+export function getOrderedSignatures(
+  hero: HeroAsset,
+  abilities: Item[]
+): Item[] {
+  const signatureKeys = [
+    hero.items.signature1,
+    hero.items.signature2,
+    hero.items.signature3,
+    hero.items.signature4,
+  ];
+
+  const orderedSignatures = signatureKeys.map(
+    (sig) =>
+      abilities.find((ability) => ability.class_name === sig) || {
+        id: -1, // placeholder ID
+        class_name: sig,
+        name: "Unknown Ability", // placeholder name
+        image_webp: "",
+      }
+  );
+
+  return orderedSignatures;
 }
