@@ -32,7 +32,7 @@ export function generateTierList(
         ? ((hero.matches / totalMatches) * 100 * 12).toFixed(1) + "%"
         : "0%";
 
-      const winRatePercentage = (winRate * 100).toFixed(1) + "%";
+      const winRatePercentage = (winRate * 100).toFixed(2) + "%";
 
       const tier = assignTier(score, winRate);
 
@@ -92,4 +92,22 @@ export function getOrderedSignatures(
   );
 
   return orderedSignatures;
+}
+
+export function getStableTimestamps() {
+  const now = new Date();
+
+  // Normalize to UTC midnight
+  const midnightUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+  const oneWeekAgo = new Date(midnightUTC);
+  oneWeekAgo.setUTCDate(midnightUTC.getUTCDate() - 7);
+
+  const oneMonthAgo = new Date(midnightUTC);
+  oneMonthAgo.setUTCMonth(midnightUTC.getUTCMonth() - 1);
+
+  return {
+    oneWeekAgoUnix: Math.floor(oneWeekAgo.getTime() / 1000),
+    oneMonthAgoUnix: Math.floor(oneMonthAgo.getTime() / 1000),
+  };
 }
