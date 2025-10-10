@@ -42,13 +42,13 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
         return (
           <div className="flex items-center gap-2">
             {hero.asset?.images?.icon_hero_card && (
-              <div className="w-9 h-9 flex items-center justify-center bg-blk-700 border border-blk-300 rounded">
+              <div className="relative w-9 h-9 flex items-center justify-center bg-blk-700 border border-blk-300 rounded">
                 <Image
-                  src={hero.asset.images.icon_image_small}
+                  src={hero.asset.images.icon_hero_card}
                   alt={hero.asset.name}
-                  width={32}
-                  height={32}
-                  className="p-0.5"
+                  fill
+                  sizes="36px"
+                  className="object-cover"
                 />
               </div>
             )}
@@ -69,7 +69,7 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
             className={cn(
               "text-lg font-bold",
               hero.tier === "S+" && "text-amber-400",
-              hero.tier === "S" &&  "text-indigo-400",
+              hero.tier === "S" && "text-indigo-400",
               hero.tier === "A" && "text-sky-400",
               hero.tier === "B" && "text-emerald-400",
               hero.tier === "C" && "text-orange-400",
@@ -86,7 +86,22 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
         return scoreA - scoreB;
       },
     }),
-    columnHelper.accessor("winRate", { header: "Winrate", }),
+    columnHelper.accessor("winRate", {
+      header: "Winrate",
+      cell: (info) => {
+        const winRateStr = info.getValue() as string;
+        const winRate = parseFloat(winRateStr);
+
+        const colorClass = cn(
+          "font-semibold",
+          winRate >= 53 && "text-green-400", // strong green
+          winRate >= 51.5 && winRate < 53 && "text-green-300", // light green
+          winRate <= 45 && "text-red-500", // strong red
+          winRate < 48.5 && winRate > 45 && "text-red-300" // light red
+        );
+        return <span className={colorClass}>{winRateStr}</span>;
+      },
+    }),
     columnHelper.accessor("pickRate", { header: "Pickrate" }),
     columnHelper.accessor("matches", { header: "Matches" }),
   ];
@@ -151,11 +166,14 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
               key={row.id}
             >
               <TableRow className="grid grid-cols-[100px_2fr_1fr_1fr_1fr_1fr] hover:bg-blk-700 border-b border-blk-700 transition-colors">
-                <TableCell className="flex items-center">
+                <TableCell className="flex items-center text-[16px] font-semibold text-gray-200">
                   {rowIndex + 1}
                 </TableCell>
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="flex items-center font-semibold">
+                  <TableCell
+                    key={cell.id}
+                    className="flex items-center font-semibold"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

@@ -3,6 +3,7 @@ import { Sofia_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import Providers from "@/app/providers";
+import NextTopLoader from "nextjs-toploader";
 
 const sofiaSans = Sofia_Sans({
   subsets: ["latin"],
@@ -22,9 +23,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className={`${sofiaSans.className} antialiased`}>
         <Providers>
+          <NextTopLoader showSpinner={false} color="#7877C6"/>
           <Navbar />
           <div className="fixed left-0 top-0 z-[-10] h-full w-full">
             <div className="absolute top-0 z-[-2] h-screen w-screen bg-blk-800 bg-[radial-gradient(ellipse_80%_80%_at_50%_100%,rgba(120,119,198,0.2),rgba(255,255,255,0))]"></div>

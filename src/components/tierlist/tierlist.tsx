@@ -1,15 +1,22 @@
 "use client";
 import { getQueryClient } from "@/app/get-query-client";
+import FilterData from "@/components/filter-data";
 import TierlistTable from "@/components/tierlist/tierlist-table";
 import { getTierListData } from "@/lib/data/heroes";
 import { TieredHeroData } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 
-export default function Tierlist() {
+export default function Tierlist({
+  rank = "80",
+  timeframe = "patch",
+}: {
+  rank?: string;
+  timeframe?: string;
+}) {
   const queryClient = getQueryClient();
   const { data, isLoading, error } = useQuery<TieredHeroData[], Error>({
-    queryKey: ["tierlist"],
-    queryFn: () => getTierListData(queryClient),
+    queryKey: ["tierlist", rank, timeframe],
+    queryFn: () => getTierListData(queryClient, rank, timeframe),
   });
 
   if (isLoading) return <p>Loading...</p>;
@@ -18,10 +25,13 @@ export default function Tierlist() {
 
   return (
     <>
-      <div className="my-4">
-        <h2 className="text-2xl text-white">Hero Tier List</h2>
+      <div className="my-4 ">
+        <h2 className="text-2xl">Hero Tier List</h2>
       </div>
-      <TierlistTable heroes={data} />
+      <div className="flex flex-col gap-4">
+        <FilterData />
+        <TierlistTable heroes={data} />
+      </div>
     </>
   );
 }

@@ -1,14 +1,41 @@
 import { HeroAsset, HeroWinRate, Item, TieredHeroData } from "@/lib/types";
-import { generateTierList } from "@/lib/utils";
+import { generateTierList, getStableTimestamps } from "@/lib/utils";
 import { QueryClient } from "@tanstack/react-query";
 
-export async function getHeroWinRate(): Promise<HeroWinRate[]> {
-  const res = await fetch(
-    "https://api.deadlock-api.com/v1/analytics/hero-stats",
-    {
-      cache: "no-store",
-    }
-  );
+export async function getHeroWinRate(
+  rank?: string,
+  timeframe?: string
+): Promise<HeroWinRate[]> {
+  const DEFAULT_PATCH_TIMESTAMP = 1759687740;
+
+  const { oneWeekAgoUnix, oneMonthAgoUnix } = getStableTimestamps();
+
+  let minUnixTimestamp: number;
+
+  switch (timeframe) {
+    case "7days":
+      minUnixTimestamp = oneWeekAgoUnix;
+      break;
+    case "30days":
+      minUnixTimestamp = oneMonthAgoUnix;
+      break;
+    default:
+      minUnixTimestamp = DEFAULT_PATCH_TIMESTAMP;
+      break;
+  }
+
+  const minAverageBadge = rank ? Number(rank) : 80;
+
+  const params = new URLSearchParams({
+    min_unix_timestamp: String(minUnixTimestamp),
+    min_average_badge: String(minAverageBadge),
+  });
+
+  const url = `https://api.deadlock-api.com/v1/analytics/hero-stats?${params.toString()}`;
+
+  const res = await fetch(url, {
+    cache: "no-store",
+  });
 
   if (!res.ok) {
     throw new Error(`Failed to fetch hero stats: ${res.status}`);
@@ -30,7 +57,9 @@ export async function getAllHeroesAssets(): Promise<HeroAsset[]> {
 }
 
 export async function getTierListData(
-  queryClient: QueryClient
+  queryClient: QueryClient,
+  rank?: string,
+  timeframe?: string
 ): Promise<TieredHeroData[]> {
   let heroAssets: HeroAsset[];
 
@@ -46,7 +75,7 @@ export async function getTierListData(
     heroAssets = await getAllHeroesAssets();
   }
 
-  const heroStats = await getHeroWinRate();
+  const heroStats = await getHeroWinRate(rank, timeframe);
 
   const combined = heroStats.map((stat) => {
     const asset = heroAssets.find((h) => h.id === stat.hero_id);
@@ -54,16 +83,21 @@ export async function getTierListData(
     return { ...stat, winRate, asset };
   });
 
-  const totalMatches = heroStats.reduce((total, hero) => total + hero.matches, 0);
+  const totalMatches = heroStats.reduce(
+    (total, hero) => total + hero.matches,
+    0
+  );
 
   return generateTierList(combined, totalMatches);
 }
 
-
-export async function getHeroByName(name:string): Promise<HeroAsset> {
-  const res = await fetch(`https://assets.deadlock-api.com/v2/heroes/by-name/${name}`, {
-    cache: "no-store",
-  });
+export async function getHeroByName(name: string): Promise<HeroAsset> {
+  const res = await fetch(
+    `https://assets.deadlock-api.com/v2/heroes/by-name/${name}`,
+    {
+      cache: "no-store",
+    }
+  );
 
   if (!res.ok) {
     throw new Error(`Failed to fetch hero: ${res.status}`);
