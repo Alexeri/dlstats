@@ -24,7 +24,7 @@ export default function FilterData() {
   const hasActiveFilters = currentRank !== "80" || currentTimeframe !== "patch";
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 w-full">
       <div className="flex items-center gap-2 mr-2">
         <ListFilter size={18} />
         <span className="font-semibold">Filters</span>

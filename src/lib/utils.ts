@@ -10,6 +10,10 @@ export function formatHeroName(name: string): string {
   return name.toLowerCase().replace(/&/g, "and").replace(/\s+/g, "-");
 }
 
+export function unformatHeroName(slug: string): string {
+  return slug.replace(/-/g, " ").replace(/\band\b/g, "&");
+}
+
 export function generateTierList(
   heroes: CombinedHeroData[],
   totalMatches?: number
@@ -81,24 +85,37 @@ export function getOrderedSignatures(
     hero.items.signature4,
   ];
 
-  const orderedSignatures = signatureKeys.map(
+  const placeholderAbility: Item = {
+    id: -1,
+    class_name: "",
+    name: "Unknown Ability",
+    image_webp: "",
+    description: { desc: "-", t2_desc: "-", t3_desc: "-" },
+    properties: {
+      AbilityCastRange: { value: "-", label: "Cast Range", icon: "", postfix: "" },
+      AbilityCharges: { value: "-", label: "Charges", icon: "" },
+      AbilityCooldown: { value: "-", label: "Cooldown", icon: "", postfix: "" },
+      AbilityDuration: { value: "-", label: "Duration", icon: "", postfix: "" },
+      Damage: { value: "-", label: "Damage", icon: "" },
+    },
+  };
+
+  return signatureKeys.map(
     (sig) =>
       abilities.find((ability) => ability.class_name === sig) || {
-        id: -1, // placeholder ID
+        ...placeholderAbility,
         class_name: sig,
-        name: "Unknown Ability", // placeholder name
-        image_webp: "",
       }
   );
-
-  return orderedSignatures;
 }
 
 export function getStableTimestamps() {
   const now = new Date();
 
   // Normalize to UTC midnight
-  const midnightUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const midnightUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  );
 
   const oneWeekAgo = new Date(midnightUTC);
   oneWeekAgo.setUTCDate(midnightUTC.getUTCDate() - 7);
@@ -110,4 +127,37 @@ export function getStableTimestamps() {
     oneWeekAgoUnix: Math.floor(oneWeekAgo.getTime() / 1000),
     oneMonthAgoUnix: Math.floor(oneMonthAgo.getTime() / 1000),
   };
+}
+
+export function resolveTimeframeToUnix(timeframe?: string): number {
+  const DEFAULT_PATCH_TIMESTAMP = 1759687740; // adjust as needed
+
+  const { oneWeekAgoUnix, oneMonthAgoUnix } = getStableTimestamps();
+
+  switch (timeframe) {
+    case "7days":
+      return oneWeekAgoUnix;
+    case "30days":
+      return oneMonthAgoUnix;
+    default:
+      return DEFAULT_PATCH_TIMESTAMP;
+  }
+}
+
+export function parseNumericValue(value: string | number | null | undefined): number {
+  if (value == null) return 0; // handle null or undefined
+  const strValue = String(value); // convert numbers or other types to string
+  const numeric = strValue.replace(/[^\d.]/g, "");
+  return numeric ? Number(numeric) : 0;
+}
+
+export function getWinRateClass(winRateStr: string): string {
+  // Convert "53.2%" => 53.2
+  const winRate = parseFloat(winRateStr.replace("%", ""));
+  if (winRate >= 53) return "text-green-400";
+  if (winRate >= 51.5) return "text-green-300";
+  if (winRate >= 50) return "text-green-200";
+  if (winRate >= 48.5) return "text-red-200";
+  if (winRate > 45) return "text-red-300";
+  return "text-red-400"; // <= 45
 }
