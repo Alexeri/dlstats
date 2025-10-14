@@ -53,6 +53,11 @@
   --color-blk-800: oklch(0.18 0.006 236.94);
   --color-blk-900: oklch(0.148 0.005 247.79);
   --color-blk-950: oklch(0.104 0.003 196.59);
+
+  --color-brand: #7877c6;
+  --color-weapon: #ec981a;
+  --color-vitality: #7cbb1e;
+  --color-spirit: #ce91ff;
 }
 
 :root {
@@ -131,4 +136,38 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+.ability-description > svg {
+  display: inline;
+  height: 12px;
+  width: 12px;
+}
+.ability-description > span > svg {
+  display: inline;
+  height: 12px;
+  width: 12px;
+}
+
+.ability-description > img {
+  display: inline;
+  height: 12px;
+  width: 12px;
+  margin-right: 1px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  @apply bg-brand/80;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-brand cursor-pointer;
 }

@@ -1,4 +1,5 @@
 "use client";
+import BorderedImage from "@/components/bordered-image";
 import {
   Table,
   TableHeader,
@@ -8,7 +9,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { TieredHeroData } from "@/lib/types";
-import { cn, formatHeroName } from "@/lib/utils";
+import { cn, formatHeroName, getWinRateClass } from "@/lib/utils";
 import {
   createColumnHelper,
   flexRender,
@@ -18,7 +19,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -42,17 +42,14 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
         return (
           <div className="flex items-center gap-2">
             {hero.asset?.images?.icon_hero_card && (
-              <div className="relative w-9 h-9 flex items-center justify-center bg-blk-700 border border-blk-300 rounded">
-                <Image
-                  src={hero.asset.images.icon_hero_card}
-                  alt={hero.asset.name}
-                  fill
-                  sizes="36px"
-                  className="object-cover"
-                />
-              </div>
+              <BorderedImage
+                src={hero.asset.images.icon_hero_card}
+                alt={hero.asset.name}
+                className="w-9 h-9"
+                sizes="36px"
+              />
             )}
-            <span className="font-semibold text-[16px]">
+            <span className="font-semibold text-[16px] text-white">
               {hero.asset?.name ?? `Hero #${hero.hero_id}`}
             </span>
           </div>
@@ -67,7 +64,7 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
         return (
           <span
             className={cn(
-              "text-lg font-bold",
+              "text-xl font-bold",
               hero.tier === "S+" && "text-amber-400",
               hero.tier === "S" && "text-indigo-400",
               hero.tier === "A" && "text-sky-400",
@@ -90,14 +87,10 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
       header: "Winrate",
       cell: (info) => {
         const winRateStr = info.getValue() as string;
-        const winRate = parseFloat(winRateStr);
 
         const colorClass = cn(
-          "font-semibold",
-          winRate >= 53 && "text-green-400", // strong green
-          winRate >= 51.5 && winRate < 53 && "text-green-300", // light green
-          winRate <= 45 && "text-red-500", // strong red
-          winRate < 48.5 && winRate > 45 && "text-red-300" // light red
+          "font-semibold text-white",
+          getWinRateClass(winRateStr)
         );
         return <span className={colorClass}>{winRateStr}</span>;
       },
@@ -172,7 +165,7 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className="flex items-center font-semibold"
+                    className="flex items-center font-semibold text-[16px] text-gray-300"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
