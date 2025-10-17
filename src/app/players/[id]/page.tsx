@@ -1,25 +1,25 @@
 import { getQueryClient } from "@/app/get-query-client";
-import MatchPageContent from "@/components/matches/match-page-content";
-import { getMatchMetadata } from "@/lib/data/matches";
+import PlayerPage from "@/components/players/player-page";
+import { getPlayerBySteamId } from "@/lib/data/players";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
-export default async function MatchPage({
+export default async function Players({
   params,
 }: {
-  params: Promise<{ id: number }>;
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
 
   const queryClient = getQueryClient();
 
   await queryClient.fetchQuery({
-    queryKey: ["match", id],
-    queryFn: () => getMatchMetadata(id),
+    queryKey: ["player", id],
+    queryFn: () => getPlayerBySteamId(id),
   });
-
+  
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <MatchPageContent matchId={id} />
+      <PlayerPage id={id} />
     </HydrationBoundary>
   );
 }

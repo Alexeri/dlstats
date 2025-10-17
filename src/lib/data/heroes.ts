@@ -53,6 +53,7 @@ export async function getTierListData(
       (await queryClient.ensureQueryData<HeroAsset[]>({
         queryKey: ["heroes-assets"],
         queryFn: getAllHeroesAssets,
+        staleTime: 1000 * 60 * 60 * 24,
       })) ??
       (await getAllHeroesAssets());
   } else {

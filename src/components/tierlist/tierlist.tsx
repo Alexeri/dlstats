@@ -17,6 +17,7 @@ export default function Tierlist({
   const { data, isLoading, error } = useQuery<TieredHeroData[], Error>({
     queryKey: ["tierlist", rank, timeframe],
     queryFn: () => getTierListData(queryClient, rank, timeframe),
+    staleTime: 1000 * 60 * 30,
   });
 
   if (isLoading) return <p>Loading...</p>;

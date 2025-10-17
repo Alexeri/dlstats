@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         hostname: "assets.deadlock-api.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "avatars.steamstatic.com",
+        pathname: "/**",
+      },
     ],
   },
 };
