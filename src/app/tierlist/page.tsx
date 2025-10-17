@@ -14,6 +14,7 @@ export default async function TierlistPage({
   await queryClient.prefetchQuery({
     queryKey: ["tierlist", rank, timeframe],
     queryFn: () => getTierListData(queryClient, rank, timeframe),
+    staleTime: 1000 * 60 * 30,
   });
 
   return (

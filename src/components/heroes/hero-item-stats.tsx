@@ -27,7 +27,7 @@ export default function HeroItemStats({
   } = useQuery({
     queryKey: ["items", "all"],
     queryFn: getAllItems,
-    staleTime: 1000 * 60 * 60 * 12, // 12h
+    staleTime: 1000 * 60 * 60 * 24, // 24h
   });
 
   const enriched: EnrichedHeroItemStat[] =

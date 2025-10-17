@@ -52,6 +52,7 @@ export default function HeroPageContent({
   } = useQuery<TieredHeroData[], Error>({
     queryKey: ["tierlist", rank, timeframe],
     queryFn: () => getTierListData(queryClient, rank, timeframe),
+    staleTime: 1000 * 60 * 30,
   });
 
   const {

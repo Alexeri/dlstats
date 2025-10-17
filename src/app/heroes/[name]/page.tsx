@@ -36,6 +36,7 @@ export default async function HeroPage({
   await queryClient.prefetchQuery({
     queryKey: ["tierlist", rank, timeframe],
     queryFn: () => getTierListData(queryClient, rank, timeframe),
+    staleTime: 1000 * 60 * 30,
   });
 
   await queryClient.prefetchQuery({
