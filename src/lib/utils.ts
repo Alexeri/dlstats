@@ -391,13 +391,16 @@ export function groupPlayersByTeam(match: MatchResponse | null) {
     };
   }
 
-  const calculateTeamStats = (players: MatchMetadataPlayer[], teamName: string) => ({
+  const calculateTeamStats = (
+    players: MatchMetadataPlayer[],
+    teamName: string
+  ) => ({
     players,
     netWorth: players.reduce((sum, p) => sum + (p.net_worth ?? 0), 0),
     kills: players.reduce((sum, p) => sum + (p.kills ?? 0), 0),
     deaths: players.reduce((sum, p) => sum + (p.deaths ?? 0), 0),
     assists: players.reduce((sum, p) => sum + (p.assists ?? 0), 0),
-    name: teamName
+    name: teamName,
   });
 
   const team0Players = match.match_info.players.filter(
@@ -417,4 +420,32 @@ export function formatNumber(num: number): string {
   if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
   if (num >= 1_000) return `${Math.round(num / 1_000)}k`;
   return num.toString();
+}
+
+export function formatStatNumber(num: number) {
+  return new Intl.NumberFormat("en-US").format(num);
+}
+
+export function getSubrankImage(value: number): string {
+  const tier = Math.floor(value / 10);
+  const rank = value % 10;
+
+  // Validate tier and rank
+  if (tier < 1 || tier > 11 || rank < 1 || rank > 6) {
+    throw new Error(`Invalid tier or rank: ${value}`);
+  }
+
+  return `https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank${tier}/badge_lg_subrank${rank}.png`;
+}
+
+export function calculateKDA(kills: number, deaths: number, assists: number) {
+  const ratio = (kills + assists) / (deaths === 0 ? 1 : deaths);
+  return ratio.toFixed(2);
+}
+
+export function getKDAColor(kda: number) {
+  if (kda >= 5) return "text-amber-500";
+  if (kda >= 4) return "text-blue-400";
+  if (kda >= 3) return "text-green-400";
+  return "text-gray-200";
 }

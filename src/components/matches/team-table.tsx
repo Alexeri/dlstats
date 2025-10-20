@@ -1,9 +1,9 @@
 import BorderedImage from "@/components/bordered-image";
 import PlayerItems from "@/components/matches/player-items";
 import { Progress } from "@/components/ui/progress";
-import { getAllHeroesAssets, getAllItems } from "@/lib/data/heroes";
-import { MatchMetadataPlayer } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { getAllItems } from "@/lib/data/heroes";
+import { HeroAsset, MatchMetadataPlayer, Player } from "@/lib/types";
+import { calculateKDA, cn, formatStatNumber, getKDAColor } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -17,34 +17,18 @@ interface TeamTableProps {
     deaths: number;
     assists: number;
   };
+  players?: Map<number, Player>;
+  heroes: Map<number, HeroAsset>;
 }
 
-export default function TeamTable({ team }: TeamTableProps) {
-  const {
-    data: heroes,
-    error: heroesError,
-  } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24, // 24h
-  });
-
-  const {
-    data: allItems,
-    error: itemsError,
-  } = useQuery({
+export default function TeamTable({ team, players, heroes }: TeamTableProps) {
+  const { data: allItems, error: itemsError } = useQuery({
     queryKey: ["items", "all"],
     queryFn: getAllItems,
     staleTime: 1000 * 60 * 60 * 24, // 24h
   });
 
-  if (heroesError) console.warn("Failed to load hero data", heroesError);
   if (itemsError) console.warn("Failed to load items data", itemsError);
-
-  const heroMap = useMemo(
-    () => (heroes ? Object.fromEntries(heroes.map((h) => [h.id, h])) : {}),
-    [heroes]
-  );
 
   const itemMap = useMemo(
     () => (allItems ? Object.fromEntries(allItems.map((i) => [i.id, i])) : {}),
@@ -57,7 +41,7 @@ export default function TeamTable({ team }: TeamTableProps) {
 
   return (
     <div className="bg-blk-700 border border-blk-500 rounded">
-      <div className="grid grid-cols-3 px-3 py-1 border-blk-500 border-b items-center">
+      <div className="grid grid-cols-5 px-3 py-1 border-blk-500 border-b items-center">
         <div
           className={cn(
             "font-bold text-sm",
@@ -67,14 +51,31 @@ export default function TeamTable({ team }: TeamTableProps) {
         >
           {team.name}
         </div>
-        {/* <div className="text-sm text-gray-400">
-          {team.kills}/{team.deaths}/{team.assists}
-        </div> */}
+        <div className="text-sm text-gray-400 text-center">
+          KDA
+        </div>
+        <div className="text-sm text-gray-400 text-center">
+          Items
+        </div>
+        <div className="text-sm text-gray-400 text-center">
+          Net Worth
+        </div>
+        <div className="text-sm text-gray-400 text-center">
+          Player Damage
+        </div>
       </div>
       {team.players.map((player) => {
-        const hero = heroMap[player.hero_id];
+        const hero = heroes.get(player.hero_id);
         const dmg = player.stats.at(-1)?.player_damage || 0;
         const dmgPercent = maxDamage > 0 ? (dmg / maxDamage) * 100 : 0;
+        const kdaValue = calculateKDA(
+          player.kills,
+          player.deaths,
+          player.assists
+        );
+        const kdaColor = getKDAColor(parseFloat(kdaValue));
+
+        const steamProfile = players?.get(player.account_id);
 
         return (
           <Link
@@ -87,23 +88,28 @@ export default function TeamTable({ team }: TeamTableProps) {
                 <BorderedImage
                   src={hero.images.icon_hero_card}
                   alt={hero.name}
-                  className="size-8"
+                  className="size-10"
                 />
-                <span className="text-sm font-semibold">{hero.name}</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold">
+                    {steamProfile?.personaname}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {hero.name}
+                  </span>
+                </div>
               </div>
             ) : (
               <span>Hero {player.hero_id}</span>
             )}
             <div className="flex flex-col items-center justify-center text-sm">
-              <div>
-                {player.kills} / {player.deaths} / {player.assists}
-              </div>
-              <div>
-                {(
-                  (player.kills + player.assists) /
-                  (player.deaths === 0 ? 1 : player.deaths)
-                ).toFixed(2)}{" "}
+              
+              <div className={cn("font-bold", kdaColor)}>
+                {kdaValue}{" "}
                 KDA
+              </div>
+              <div className="text-gray-400 text-xs">
+                {player.kills} / {player.deaths} / {player.assists}
               </div>
             </div>
             <div className="flex justify-center">
@@ -111,14 +117,16 @@ export default function TeamTable({ team }: TeamTableProps) {
             </div>
 
             <div className="flex flex-col items-center justify-center text-sm">
-              <span>{player.net_worth} Souls</span>
-              <span>{player.last_hits} CS</span>
+              <span>{formatStatNumber(player.net_worth)} Souls</span>
+              <span className="text-xs text-gray-400">
+                {player.last_hits} CS
+              </span>
             </div>
             <div className="flex flex-col justify-center items-center w-[10ch] justify-self-center">
-              <div className="text-sm">{dmg} DMG</div>
+              <div className="text-sm">{formatStatNumber(dmg)} DMG</div>
               <Progress
                 value={dmgPercent}
-                className="h-2 mt-1"
+                className="h-2 mt-1 rounded-xs"
                 indicatorClassName={cn(
                   player.team === 0 ? "bg-amberhand" : "bg-sapphireflame"
                 )}

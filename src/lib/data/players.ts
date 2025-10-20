@@ -1,8 +1,12 @@
 import { MatchHistory, Player } from "@/lib/types";
 
-export async function getPlayerBySteamId(id: string): Promise<Player> {
+export async function getPlayersBySteamId(
+  ids: string | string[]
+): Promise<Player[]> {
+  const idParam = Array.isArray(ids) ? ids.join(",") : ids;
+
   const res = await fetch(
-    `https://api.deadlock-api.com/v1/players/steam?account_ids=${id}`,
+    `https://api.deadlock-api.com/v1/players/steam?account_ids=${idParam}`,
     { cache: "no-store" }
   );
 
@@ -11,7 +15,7 @@ export async function getPlayerBySteamId(id: string): Promise<Player> {
   }
 
   const data = await res.json();
-  return data[0];
+  return data;
 }
 
 export async function getPlayerMatchHistory(
