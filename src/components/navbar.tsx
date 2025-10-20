@@ -1,3 +1,4 @@
+import { SearchTrigger } from "@/components/search/search-trigger";
 import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,7 +19,9 @@ export default function Navbar() {
           <h1 className="font-bold text-white ">DEADLOCK TRACKER</h1>
         </Link>
       </div>
-      <div className="w-full bg-blk-400 h-8 my-2 rounded md:basis-1/3"></div>
+      <div className="w-full my-2 rounded md:basis-1/3">
+        <SearchTrigger />
+      </div>
       <div className="hidden min-md:flex justify-end basis-1/3">
         <div className="flex gap-1">
           {links.map((link) => (
@@ -33,7 +36,7 @@ export default function Navbar() {
         </div>
       </div>
       <div className="flex justify-end md:hidden">
-        <Menu color="white"/>
+        <Menu color="white" />
       </div>
     </div>
   );

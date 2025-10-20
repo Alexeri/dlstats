@@ -336,10 +336,7 @@ function getHeroStats(heroId: number, matches: MatchHistory[]): HeroStats {
   const totalDeaths = matches.reduce((sum, m) => sum + m.player_deaths, 0);
   const totalAssists = matches.reduce((sum, m) => sum + m.player_assists, 0);
 
-  const kda =
-    totalDeaths > 0
-      ? ((totalKills + totalAssists) / totalDeaths).toFixed(1)
-      : (totalKills + totalAssists).toFixed(1);
+  const kda = calculateKDA(totalKills, totalDeaths, totalAssists);
 
   return {
     heroId,

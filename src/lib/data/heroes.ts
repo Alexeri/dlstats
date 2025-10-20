@@ -29,7 +29,7 @@ export async function getHeroWinRate(
 }
 
 export async function getAllHeroesAssets(): Promise<HeroAsset[]> {
-  const res = await fetch("https://assets.deadlock-api.com/v2/heroes", {
+  const res = await fetch("https://assets.deadlock-api.com/v2/heroes?only_active=1", {
     cache: "no-store",
   });
 
