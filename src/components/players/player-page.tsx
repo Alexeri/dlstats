@@ -5,7 +5,7 @@ import MatchHistoryComponent from "@/components/players/match-history";
 import MatchHistoryMostPlayed from "@/components/players/match-history-mostplayed";
 import { Progress } from "@/components/ui/progress";
 import { getAllHeroesAssets } from "@/lib/data/heroes";
-import { getPlayerBySteamId, getPlayerMatchHistory } from "@/lib/data/players";
+import { getPlayersBySteamId, getPlayerMatchHistory } from "@/lib/data/players";
 import {
   calculateMatchHistoryStats,
   calculateOverallWinRate,
@@ -21,7 +21,7 @@ export default function PlayerPage({ id }: { id: string }) {
     error: playerError,
   } = useQuery({
     queryKey: ["player", id],
-    queryFn: () => getPlayerBySteamId(id),
+    queryFn: () => getPlayersBySteamId(id),
   });
 
   const {
@@ -61,12 +61,12 @@ export default function PlayerPage({ id }: { id: string }) {
           {player && (
             <div className="flex gap-8">
               <BorderedImage
-                src={player.avatarfull}
-                alt={player.personaname}
+                src={player[0].avatarfull}
+                alt={player[0].personaname}
                 className="size-24"
                 imageClassName="rounded"
               />
-              <h2 className="text-4xl font-bold">{player.personaname}</h2>
+              <h2 className="text-4xl font-bold">{player[0].personaname}</h2>
             </div>
           )}
         </div>
