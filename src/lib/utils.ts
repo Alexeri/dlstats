@@ -92,35 +92,25 @@ export function getOrderedSignatures(
     hero.items.signature2,
     hero.items.signature3,
     hero.items.signature4,
-  ];
+  ].filter(Boolean);
 
-  const placeholderAbility: Item = {
+  const makePlaceholderAbility = (class_name: string): Item => ({
     id: -1,
-    class_name: "",
+    class_name,
     name: "Unknown Ability",
+    cost: 0,
+    is_active_item: false,
+    item_tier: 1,
+    activation: "",
     image_webp: "",
     description: { desc: "-", t2_desc: "-", t3_desc: "-" },
-    properties: {
-      AbilityCastRange: {
-        value: "-",
-        label: "Cast Range",
-        icon: "",
-        postfix: "",
-      },
-      AbilityCharges: { value: "-", label: "Charges", icon: "" },
-      AbilityCooldown: { value: "-", label: "Cooldown", icon: "", postfix: "" },
-      AbilityDuration: { value: "-", label: "Duration", icon: "", postfix: "" },
-      Damage: { value: "-", label: "Damage", icon: "" },
-    },
-  };
+    properties: {},
+  });
 
-  return signatureKeys.map(
-    (sig) =>
-      abilities.find((ability) => ability.class_name === sig) || {
-        ...placeholderAbility,
-        class_name: sig,
-      }
-  );
+  return signatureKeys.map((sig) => {
+    const found = abilities.find((ability) => ability.class_name === sig);
+    return found ?? makePlaceholderAbility(sig);
+  });
 }
 
 export function getStableTimestamps() {
@@ -158,13 +148,14 @@ export function resolveTimeframeToUnix(timeframe?: string): number {
   }
 }
 
-export function parseNumericValue(
-  value: string | number | null | undefined
-): number {
-  if (value == null) return 0; // handle null or undefined
-  const strValue = String(value); // convert numbers or other types to string
-  const numeric = strValue.replace(/[^\d.]/g, "");
-  return numeric ? Number(numeric) : 0;
+export function parseNumericValue(value: unknown): number {
+  if (value == null) return 0;
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const num = parseFloat(value.replace(/[^\d.-]/g, ""));
+    return isNaN(num) ? 0 : num;
+  }
+  return 0;
 }
 
 export function getWinRateClass(winRateStr: string): string {

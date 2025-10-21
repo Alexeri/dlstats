@@ -1,9 +1,10 @@
 import BorderedImage from "@/components/bordered-image";
+import ItemCard from "@/components/item-card";
 import { getAllItems } from "@/lib/data/heroes";
 import { EnrichedHeroItemStat, HeroItemStat } from "@/lib/types";
 import { cn, getWinRateClass } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useRef, useState } from "react";
 
 interface HeroItemStatsProps {
   itemStats: HeroItemStat[];
@@ -19,6 +20,15 @@ export default function HeroItemStats({
   error,
 }: HeroItemStatsProps) {
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [tierFilters, setTierFilters] = useState<{
+    weapon: number | "all";
+    vitality: number | "all";
+    spirit: number | "all";
+  }>({
+    weapon: "all",
+    vitality: "all",
+    spirit: "all",
+  });
 
   const {
     data: allItems,
@@ -58,23 +68,6 @@ export default function HeroItemStats({
     }
   );
 
-  useEffect(() => {
-    Object.values(containerRefs.current).forEach((container) => {
-      if (!container) return;
-
-      const onWheel = (e: WheelEvent) => {
-        if (Math.abs(e.deltaY) > 0) {
-          container.scrollLeft += e.deltaY;
-          e.preventDefault();
-        }
-      };
-
-      container.addEventListener("wheel", onWheel, { passive: false });
-
-      return () => container.removeEventListener("wheel", onWheel);
-    });
-  }, []);
-
   if (isLoading || itemsLoading) return <p>Loading item stats...</p>;
   if (error || itemsError)
     return <p>Error loading item stats: {(error ?? itemsError)?.message}</p>;
@@ -88,9 +81,42 @@ export default function HeroItemStats({
           const items = grouped[type];
           if (!items.length) return null;
 
+          const currentFilter = tierFilters[type];
+          const filteredItems =
+            currentFilter === "all"
+              ? items
+              : items.filter((s) => s.item.item_tier === currentFilter);
+
           return (
-            <div key={type}>
-              <div className="flex bg-blk-700 p-2 rounded border">
+            <div
+              key={type}
+              className="flex flex-col gap-2 bg-blk-700 p-2 rounded border"
+            >
+              <div className="grid grid-cols-5 p-1 bg-brand/10 rounded">
+                {(["all", 1, 2, 3, 4] as const).map((tier) => (
+                  <button
+                    key={tier}
+                    onClick={() =>
+                      setTierFilters((prev) => ({
+                        ...prev,
+                        [type]:
+                          prev[type] === tier
+                            ? "all"
+                            : (tier as number | "all"),
+                      }))
+                    }
+                    className={cn(
+                      "px-2 py-1 text-xs rounded transition-colors cursor-pointer",
+                      currentFilter === tier
+                        ? "bg-brand/50 text-white "
+                        : "bg-transparent hover:bg-brand/30"
+                    )}
+                  >
+                    {tier === "all" ? "All" : `T${tier}`}
+                  </button>
+                ))}
+              </div>
+              <div className="flex ">
                 <div className="flex flex-col text-sm pl-2 pr-4">
                   <div
                     className={cn(
@@ -111,22 +137,57 @@ export default function HeroItemStats({
                 <div
                   className="flex gap-3 pb-2 overflow-x-auto custom-scrollbar"
                   ref={(el) => {
-                    containerRefs.current[type] = el;
+                    if (el) {
+                      containerRefs.current[type] = el;
+
+                      const onWheel = (e: WheelEvent) => {
+                        if (Math.abs(e.deltaY) > 0) {
+                          el.scrollLeft += e.deltaY;
+                          e.preventDefault();
+                        }
+                      };
+                      el.addEventListener("wheel", onWheel, { passive: false });
+
+                      return () => el.removeEventListener("wheel", onWheel);
+                    }
                   }}
                 >
-                  {items.map(({ item, wins, losses }) => {
+                  {filteredItems.map(({ item, wins, losses }) => {
                     const total = wins + losses;
                     const winRate =
                       total > 0 ? ((wins / total) * 100).toFixed(1) : "0.0";
                     return (
                       <div key={item.id} className="flex flex-col">
                         {item.shop_image_small_webp ? (
-                          <BorderedImage
-                            src={item.shop_image_small_webp}
-                            alt={item.name}
-                            className="size-12"
-                            imageClassName="rounded"
-                          />
+                          <>
+                            <ItemCard
+                              item={item}
+                              trigger={
+                                <div className="relative">
+                                  <BorderedImage
+                                    src={item.shop_image_small_webp}
+                                    alt={item.name}
+                                    className="size-12"
+                                    imageClassName="rounded"
+                                  />
+                                  <div
+                                    className={cn(
+                                      "absolute top-[1px] right-[1px] rounded-tr rounded-bl flex items-center justify-center text-[12px] font-extrabold size-4 text-black",
+                                      item.item_slot_type === "weapon"
+                                        ? "bg-weapon"
+                                        : item.item_slot_type === "vitality"
+                                        ? "bg-vitality"
+                                        : item.item_slot_type === "spirit"
+                                        ? "bg-spirit"
+                                        : ""
+                                    )}
+                                  >
+                                    {item.item_tier}
+                                  </div>
+                                </div>
+                              }
+                            />
+                          </>
                         ) : (
                           <div className="size-12 bg-blk-600"></div>
                         )}

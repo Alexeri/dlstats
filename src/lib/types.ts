@@ -32,48 +32,56 @@ export interface TieredHeroData extends CombinedHeroData {
   rank: number;
 }
 
+export interface TooltipSectionAttribute {
+  properties?: string[];
+  elevated_properties?: string[];
+  important_properties?: string[];
+  loc_string?: string;
+}
+
+export interface TooltipSection {
+  section_type: string;
+  section_attributes: TooltipSectionAttribute[];
+}
+
 export interface Item {
   id: number;
   class_name: string;
   name: string;
+  cost: number;
+  is_active_item: boolean;
   image_webp: string;
   shop_image_small_webp?: string;
+  item_tier: number;
+  activation: string;
   item_slot_type?: string;
   description: {
     desc: string;
     t2_desc: string;
     t3_desc: string;
   };
-  properties: {
-    AbilityCastRange: {
-      value: string;
-      label: string;
-      icon: string;
-      postfix: string;
-    };
-    AbilityCharges: {
-      value: string;
-      label: string;
-      icon: string;
-    };
-    AbilityCooldown: {
-      value: string;
-      label: string;
-      icon: string;
-      postfix: string;
-    };
-    AbilityDuration: {
-      value: string;
-      label: string;
-      icon: string;
-      postfix: string;
-    };
-    Damage: {
-      value: string;
-      label: string;
-      icon: string;
-    };
-  };
+  properties: Record<ItemPropertyKey, ItemProperty>;
+  tooltip_sections?: TooltipSection[];
+}
+export type ItemPropertyKey =
+  | "AbilityCooldown"
+  | "AbilityDuration"
+  | "AbilityCastRange"
+  | "Damage"
+  | "TechResist"
+  | "BonusMoveSpeed"
+  | string;
+
+export type ItemProperties = Record<ItemPropertyKey, ItemProperty>;
+
+export interface ItemProperty {
+  value: string | number;
+  label?: string;
+  icon?: string;
+  prefix?: string;
+  postfix?: string;
+  css_class?: string;
+  [key: string]: unknown;
 }
 
 export interface HeroItemStat {

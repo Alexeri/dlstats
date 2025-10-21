@@ -1,10 +1,10 @@
-import BorderedImage from "@/components/bordered-image";
-import { MatchMetadataPlayer } from "@/lib/types";
+import ItemCard from "@/components/item-card";
+import { Item, MatchMetadataPlayer } from "@/lib/types";
 import { useParams } from "next/navigation";
 
 interface MatchHistoryItemsProps {
   players: MatchMetadataPlayer[];
-  allItemsMap: Record<number, { name: string; shop_image_small_webp?: string }>;
+  allItemsMap: Record<number, Item>;
   isLoading?: boolean;
   isError?: boolean;
 }
@@ -16,7 +16,7 @@ export default function MatchHistoryItems({
   isError,
 }: MatchHistoryItemsProps) {
   const params = useParams();
-  const currentPlayerId = Number(params?.id); 
+  const currentPlayerId = Number(params?.id);
   const player = players.find((p) => p.account_id === currentPlayerId);
   if (!player) return null;
 
@@ -61,13 +61,7 @@ export default function MatchHistoryItems({
       <div className="grid grid-cols-6 gap-1">
         {itemSlots.map((item, idx) =>
           item ? (
-            <BorderedImage
-              key={idx}
-              src={item.shop_image_small_webp || ""}
-              alt={item.name}
-              className="size-8"
-              imageClassName="rounded"
-            />
+            <ItemCard key={idx} item={item} />
           ) : (
             <div key={idx} className="size-8 bg-blk-500 rounded" />
           )

@@ -149,6 +149,11 @@
   height: 12px;
   width: 12px;
 }
+.ability-description > span > img {
+  display: inline;
+  height: 12px;
+  width: 12px;
+}
 
 .ability-description > img {
   display: inline;
