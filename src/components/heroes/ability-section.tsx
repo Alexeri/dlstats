@@ -49,7 +49,7 @@ export default function AbilitySection({
                 parseNumericValue(ability.properties.Damage.value) > 0 && (
                   <div className="flex text-sm gap-1 ">
                     <span>Damage:</span>
-                    <span className="text-brand">{ability.properties.Damage.value}</span>
+                    <span className="text-brand">{String(ability.properties.Damage.value)}</span>
                   </div>
                 )}
 
@@ -60,8 +60,8 @@ export default function AbilitySection({
                   <div className="flex text-sm gap-1">
                     <span>Cooldown:</span>
                     <span className="text-brand">
-                      {ability.properties.AbilityCooldown.value}
-                      {ability.properties.AbilityCooldown.postfix}
+                      {String(ability.properties.AbilityCooldown.value)}
+                      {String(ability.properties.AbilityCooldown.postfix)}
                     </span>
                   </div>
                 )}
@@ -73,8 +73,8 @@ export default function AbilitySection({
                   <div className="flex text-sm gap-1">
                     <span>Duration:</span>
                     <span className="text-brand">
-                      {ability.properties.AbilityDuration.value}
-                      {ability.properties.AbilityDuration.postfix}
+                      {String(ability.properties.AbilityDuration.value)}
+                      {String(ability.properties.AbilityDuration.postfix)}
                     </span>
                   </div>
                 )}
@@ -85,7 +85,7 @@ export default function AbilitySection({
                   0 && (
                   <div className="flex text-sm gap-1">
                     <span>Cast Range:</span>
-                    <span className="text-brand">{ability.properties.AbilityCastRange.value}</span>
+                    <span className="text-brand">{String(ability.properties.AbilityCastRange.value)}</span>
                   </div>
                 )}
             </div>
