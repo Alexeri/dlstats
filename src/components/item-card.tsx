@@ -149,7 +149,7 @@ export default function ItemCard({ item, trigger }: ItemCardProps) {
                           return null;
 
                         return (
-                          <span className="text-gray-200 text-sm font-bold bg-blk-900 px-4 py-1">
+                          <span className="text-gray-200 text-xs font-bold bg-blk-900 px-4 py-1">
                             {cooldownProp.prefix === "{s:sign}"
                               ? "+"
                               : cooldownProp.prefix ?? ""}

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useDialog } from "../providers/dialog-provider";
 import { Search } from "lucide-react";
 
-export function SearchTrigger({ className }: { className?: string }) {
+export function SearchTrigger({ className, large  }: { className?: string, large?: boolean }) {
   const { open } = useDialog();
 
   return (
@@ -12,7 +12,8 @@ export function SearchTrigger({ className }: { className?: string }) {
       onClick={open}
       className={cn(
         "flex justify-between bg-blk-700 border border-blk-500 px-3 py-1.5 rounded text-sm text-gray-300 hover:bg-blk-600 transition w-full cursor-pointer",
-        className
+        className,
+        large && "py-3 text-sm"
       )}
     >
 

@@ -437,3 +437,35 @@ export function getKDAColor(kda: number) {
   if (kda >= 3) return "text-green-400";
   return "text-gray-200";
 }
+
+const RANK_NAMES = [
+  "Obscurus",
+  "Initiate",
+  "Seeker",
+  "Alchemist",
+  "Arcanist",
+  "Ritualist",
+  "Emissary",
+  "Archon",
+  "Oracle",
+  "Phantom",
+  "Ascendant",
+  "Eternus",
+] as const;
+
+export function getRankName(
+  value: number,
+  { includeSubrank = false }: { includeSubrank?: boolean } = {}
+): string {
+  const tier = Math.floor(value / 10);
+  const sub = value % 10;
+
+  const name = RANK_NAMES[tier];
+  if (!name) return "Unknown";
+
+  if (includeSubrank && sub >= 1 && sub <= 6) {
+    return `${name} ${sub}`;
+  }
+
+  return name;
+}
