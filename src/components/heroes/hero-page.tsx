@@ -12,7 +12,12 @@ import {
   getTierListData,
 } from "@/lib/data/heroes";
 import { HeroAsset, Item, TieredHeroData } from "@/lib/types";
-import { cn, formatHeroName, getOrderedSignatures } from "@/lib/utils";
+import {
+  cn,
+  formatHeroName,
+  getOrderedSignatures,
+  getRankName,
+} from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
 export default function HeroPageContent({
@@ -112,8 +117,21 @@ export default function HeroPageContent({
             )}
           />
           <div className="flex flex-col justify-between">
-            <h2 className="text-white text-4xl font-bold">{hero.name}</h2>
-
+            <div className="flex items-baseline gap-4">
+              <h2 className="text-white text-4xl font-bold">{hero.name}</h2>
+              <span className="text-3xl text-gray-400 font-medium">
+                {Number(rank) === 0
+                  ? "All Ranks"
+                  : `${getRankName(Number(rank))} +`}{" "}
+                Matches,{" "}
+                {{
+                  patch: "Latest Patch",
+                  "7days": "Last 7 Days",
+                  "30days": "Last 30 Days",
+                }[timeframe] ?? "Unknown"}
+              </span>
+            </div>
+            <span></span>
             <div className="flex gap-4 items-end">
               <AbilitySection
                 signatureAbilities={signatureAbilities}
@@ -129,7 +147,7 @@ export default function HeroPageContent({
       </div>
       <div className="flex max-w-7xl mx-auto px-4 xl:px-0 ">
         <div className="flex flex-col gap-4 mt-4 w-full">
-          <FilterData />
+          <FilterData disableFilters={{ region: true }} />
           <HeroTierStats
             heroStats={heroStats}
             tierList={tierList}
@@ -144,7 +162,6 @@ export default function HeroPageContent({
               error={itemStatsError}
             />
           )}
-          <div className="h-[1000px]"></div>
         </div>
       </div>
     </div>

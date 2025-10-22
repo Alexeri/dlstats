@@ -46,7 +46,7 @@ export default function SearchDialog() {
               placeholder="Search Player or Hero"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="dark:bg-blk-800 border-blk-500 pl-10 placeholder:text-gray-300 rounded shadow-xl shadow-brand/10"
+              className="dark:bg-blk-800 border-blk-500 pl-10 placeholder:text-gray-300 rounded shadow-lg shadow-brand/10"
               autoComplete="off"
               spellCheck={false}
               autoFocus

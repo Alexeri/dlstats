@@ -176,3 +176,22 @@ export interface HeroStats {
   avgDeaths: number;
   avgAssists: number;
 }
+
+export interface Patch {
+  title: string;
+  pub_date: string;
+  link: string;
+  content_encoded: string;
+}
+export interface LeaderboardResponse {
+  entries: LeaderboardPlayer[];
+}
+export interface LeaderboardPlayer {
+  account_name: string;
+  possible_account_ids: number[];
+  rank: number;
+  top_hero_ids: number[];
+  badge_level: number;
+  ranked_rank: number;
+  ranked_subrank: number;
+}

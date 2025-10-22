@@ -30,7 +30,7 @@ export default function Tierlist({
         <h2 className="text-2xl">Hero Tier List</h2>
       </div>
       <div className="flex flex-col gap-4">
-        <FilterData />
+        <FilterData disableFilters={{ region: true }} />
         <TierlistTable heroes={data} />
       </div>
     </>
