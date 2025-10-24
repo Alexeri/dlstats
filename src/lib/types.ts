@@ -11,6 +11,7 @@ export interface HeroAsset {
   description: {
     playstyle: string;
   };
+  hero_type: string;
   images: { icon_hero_card: string; icon_image_small: string };
   items: {
     signature1: string;
@@ -164,6 +165,14 @@ export interface MatchMetadataPlayer {
     }
   ];
 }
+export interface MatchRecent{
+  match_id: number
+  start_time: number
+  duration_s: number
+  match_mode: number
+  average_badge_team0: number
+  average_badge_team1: number
+}
 
 export interface HeroStats {
   heroId: number;
@@ -194,4 +203,11 @@ export interface LeaderboardPlayer {
   badge_level: number;
   ranked_rank: number;
   ranked_subrank: number;
+}
+
+export interface HeroCounterStat {
+  hero_id: number;
+  enemy_hero_id: number;
+  wins: number;
+  matches_played: number;
 }

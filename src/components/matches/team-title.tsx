@@ -23,12 +23,18 @@ export default function TeamTitle({
 
   return (
     <div className={`flex w-full gap-4 ${flexDirection}`}>
-      <BorderedImage
-        src={getSubrankImage(rank)}
-        alt={name + " rank"}
-        className="h-full aspect-square"
-        imageClassName="object-contain p-2"
-      />
+      {getSubrankImage(rank) !== "" ? (
+        <BorderedImage
+          src={getSubrankImage(rank)}
+          alt={name + " rank"}
+          className="h-full aspect-square"
+          imageClassName="object-contain p-2"
+        />
+      ) : (
+        <div className="h-full aspect-square p-2 flex items-center justify-center bg-blk-700 rounded text-xs text-center text-gray-400">
+          Unknown Rank
+        </div>
+      )}
 
       <div
         className={`flex flex-col w-full justify-between p-0.5 ${alignment}`}
@@ -46,8 +52,10 @@ export default function TeamTitle({
             className={cn(
               "px-3 rounded text-black font-medium bg-blk-600 flex items-center gap-1",
               {
-                "bg-green-400/15 border-green-400/30 border text-green-400": isWinner,
-                "bg-red-400/15 border-red-400/30 border text-red-400": !isWinner,
+                "bg-green-400/15 border-green-400/30 border text-green-400":
+                  isWinner,
+                "bg-red-400/15 border-red-400/30 border text-red-400":
+                  !isWinner,
               }
             )}
           >

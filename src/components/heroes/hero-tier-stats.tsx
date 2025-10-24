@@ -1,21 +1,54 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
 import { TieredHeroData } from "@/lib/types";
-import { cn, getWinRateClass } from "@/lib/utils";
+import {
+  cn,
+  getWinRateClass,
+  formatHeroName,
+  unformatHeroName,
+  formatStatNumber,
+} from "@/lib/utils";
+import { useParams, useSearchParams } from "next/navigation";
+import { getTierListData } from "@/lib/data/heroes";
+import { getQueryClient } from "@/app/get-query-client";
+import { useEffect, useState } from "react";
 
-interface HeroTierStatsProps {
-  heroStats?: TieredHeroData;
-  tierList?: TieredHeroData[];
-  isLoading: boolean;
-  error: Error | null;
-}
+export default function HeroTierStats() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
 
-export default function HeroTierStats({
-  heroStats,
-  tierList,
-  isLoading,
-  error,
-}: HeroTierStatsProps) {
-  if (isLoading) return <p>Loading hero stats...</p>;
-  if (error) return <p>Error loading hero stats: {error.message}</p>;
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const name = unformatHeroName(params.name as string);
+  const rank = searchParams.get("rank") ?? "80";
+  const timeframe = searchParams.get("timeframe") ?? "patch";
+
+  const queryClient = getQueryClient();
+
+  const {
+    data: tierList,
+    isLoading,
+    error,
+  } = useQuery<TieredHeroData[]>({
+    queryKey: ["tierlist", rank, timeframe],
+    queryFn: () => getTierListData(queryClient, rank, timeframe),
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const heroStats = tierList?.find(
+    (h) => formatHeroName(h.asset?.name ?? "") === formatHeroName(name)
+  );
+
+  const showSkeleton = !hydrated || isLoading;
+
+  if (showSkeleton) {
+    return (
+      <div className="bg-blk-800 border border-b-4 rounded py-1 grid grid-cols-5 animate-pulse h-24" />
+    );
+  }
+
+  if (error) return <p>Error loading hero stats: {(error as Error).message}</p>;
   if (!tierList || !heroStats)
     return (
       <p className="text-gray-400 text-sm">No stats available for this hero.</p>
@@ -80,7 +113,9 @@ export default function HeroTierStats({
 
       {/* Matches */}
       <div className="flex flex-col items-center p-4">
-        <span className="text-2xl font-bold">{heroStats.matches}</span>
+        <span className="text-2xl font-bold">
+          {formatStatNumber(heroStats.matches)}
+        </span>
         <span className="text-gray-500 text-sm">Matches</span>
       </div>
     </div>
