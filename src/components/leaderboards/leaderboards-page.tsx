@@ -34,8 +34,7 @@ export default function LeaderboardsContent({ region }: { region: string }) {
 
   return (
     <div>
-      <div className="text-3xl font-bold my-8">Leaderboards</div>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 mt-4">
         <FilterData hideFilters={{ rank: true, timeframe: true }} />
         <LeaderboardTable data={pageData} />
       </div>

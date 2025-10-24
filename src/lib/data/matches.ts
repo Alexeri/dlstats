@@ -1,4 +1,4 @@
-import { MatchMetadata, MatchResponse } from "@/lib/types";
+import { MatchMetadata, MatchRecent, MatchResponse } from "@/lib/types";
 
 export async function getMatchMetadata(
   matchId: number
@@ -29,6 +29,19 @@ export async function getMatchesMetadata(
 
   const res = await fetch(
     `https://api.deadlock-api.com/v1/matches/metadata?${params.toString()}`,
+    { cache: "no-store" }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch match metadata: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function getRecentMatches(): Promise<MatchRecent[]> {
+  const res = await fetch(
+    `https://api.deadlock-api.com/v1/matches/recently-fetched?player_ingested_only=true`,
     { cache: "no-store" }
   );
 

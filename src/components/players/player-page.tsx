@@ -1,8 +1,10 @@
 "use client";
 
 import BorderedImage from "@/components/bordered-image";
+import { SteamLogoSolid } from "@/components/icons/steam";
 import MatchHistoryComponent from "@/components/players/match-history";
 import MatchHistoryMostPlayed from "@/components/players/match-history-mostplayed";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { getAllHeroesAssets } from "@/lib/data/heroes";
 import { getPlayersBySteamId, getPlayerMatchHistory } from "@/lib/data/players";
@@ -10,8 +12,10 @@ import {
   calculateMatchHistoryStats,
   calculateOverallWinRate,
   cn,
+  steamId3ToSteamId64,
 } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useMemo } from "react";
 
 export default function PlayerPage({ id }: { id: string }) {
@@ -33,9 +37,7 @@ export default function PlayerPage({ id }: { id: string }) {
     queryFn: () => getPlayerMatchHistory(id),
   });
 
-  const {
-    data: heroes,
-  } = useQuery({
+  const { data: heroes } = useQuery({
     queryKey: ["hero-assets"],
     queryFn: getAllHeroesAssets,
     staleTime: 1000 * 60 * 60 * 24, // 24h
@@ -53,10 +55,10 @@ export default function PlayerPage({ id }: { id: string }) {
 
   if (playerLoading) return <div>Loading player data…</div>;
   if (playerError) return <div>Failed to load player data.</div>;
-
+  console.log(player);
   return (
     <div>
-      <div className="bg-blk-900 py-8">
+      <div className="bg-gradient-to-b from-blk-800 to-blk-900 py-8 border-b border-blk-500">
         <div className="flex max-w-7xl mx-auto px-4 xl:px-0">
           {player && (
             <div className="flex gap-8">
@@ -66,7 +68,23 @@ export default function PlayerPage({ id }: { id: string }) {
                 className="size-24"
                 imageClassName="rounded"
               />
-              <h2 className="text-4xl font-bold">{player[0].personaname}</h2>
+              <div className="flex flex-col justify-between">
+                <h2 className="text-4xl font-bold">{player[0].personaname}</h2>
+
+                <div className="flex items-center gap-4">
+                  <Button className=" bg-brand rounded text-white font-semibold disabled:cursor-not-allowed disabled:pointer-events-auto disabled:hover:bg-brand" disabled>Update</Button>
+                  <Link
+                    href={`https://steamcommunity.com/profiles/${steamId3ToSteamId64(
+                      id
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className=" text-sm text-gray-200 hover:text-white transition-all"
+                  >
+                    <SteamLogoSolid className="size-8" />
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -108,9 +126,11 @@ export default function PlayerPage({ id }: { id: string }) {
               </>
             )}
             {matchStats && (
-              <MatchHistoryMostPlayed topHeroes={matchStats.topHeroes ?? []} heroes={heroes ?? []} />
+              <MatchHistoryMostPlayed
+                topHeroes={matchStats.topHeroes ?? []}
+                heroes={heroes ?? []}
+              />
             )}
-            
           </div>
           <div className="w-full flex flex-col gap-2">
             <div className="bg-blk-800 p-2 border rounded">

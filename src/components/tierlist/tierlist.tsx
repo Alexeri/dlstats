@@ -25,14 +25,9 @@ export default function Tierlist({
   if (!data) return <p>No data</p>;
 
   return (
-    <>
-      <div className="my-4 ">
-        <h2 className="text-2xl">Hero Tier List</h2>
-      </div>
-      <div className="flex flex-col gap-4">
-        <FilterData disableFilters={{ region: true }} />
-        <TierlistTable heroes={data} />
-      </div>
-    </>
+    <div className="flex flex-col gap-4 mt-4">
+      <FilterData hideFilters={{ region: true }} />
+      <TierlistTable heroes={data} />
+    </div>
   );
 }

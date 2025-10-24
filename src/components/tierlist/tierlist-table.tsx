@@ -9,7 +9,12 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { TieredHeroData } from "@/lib/types";
-import { cn, formatHeroName, getWinRateClass } from "@/lib/utils";
+import {
+  cn,
+  formatHeroName,
+  formatStatNumber,
+  getWinRateClass,
+} from "@/lib/utils";
 import {
   createColumnHelper,
   flexRender,
@@ -96,7 +101,10 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
       },
     }),
     columnHelper.accessor("pickRate", { header: "Pickrate" }),
-    columnHelper.accessor("matches", { header: "Matches" }),
+    columnHelper.accessor("matches", {
+      header: "Matches",
+      cell: (info) => <div>{formatStatNumber(info.getValue())}</div>,
+    }),
   ];
   const table = useReactTable({
     data: heroes,
@@ -155,7 +163,7 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
 
           return (
             <Link
-              href={`/heroes/${formatHeroName(hero.asset?.name ?? "")}`}
+              href={`/heroes/${formatHeroName(hero.asset?.name ?? "")}/build`}
               key={row.id}
             >
               <TableRow className="grid grid-cols-[100px_2fr_1fr_1fr_1fr_1fr] hover:bg-blk-700 border-b border-blk-700 transition-colors">
@@ -165,7 +173,7 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className="flex items-center font-semibold text-[16px] text-gray-300"
+                    className="flex items-center  text-[16px] text-gray-300"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>

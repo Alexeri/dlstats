@@ -51,20 +51,12 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
         >
           {team.name}
         </div>
-        <div className="text-sm text-gray-400 text-center">
-          KDA
-        </div>
-        <div className="text-sm text-gray-400 text-center">
-          Items
-        </div>
-        <div className="text-sm text-gray-400 text-center">
-          Net Worth
-        </div>
-        <div className="text-sm text-gray-400 text-center">
-          Player Damage
-        </div>
+        <div className="text-sm text-gray-400 text-center">KDA</div>
+        <div className="text-sm text-gray-400 text-center">Items</div>
+        <div className="text-sm text-gray-400 text-center">Net Worth</div>
+        <div className="text-sm text-gray-400 text-center">Player Damage</div>
       </div>
-      {team.players.map((player) => {
+      {team.players.map((player, index) => {
         const hero = heroes.get(player.hero_id);
         const dmg = player.stats.at(-1)?.player_damage || 0;
         const dmgPercent = maxDamage > 0 ? (dmg / maxDamage) * 100 : 0;
@@ -76,13 +68,10 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
         const kdaColor = getKDAColor(parseFloat(kdaValue));
 
         const steamProfile = players?.get(player.account_id);
+        const hasPlayerProfile = !!steamProfile;
 
-        return (
-          <Link
-            href={`/players/${player.account_id}`}
-            key={player.account_id}
-            className="grid grid-cols-5 px-3 py-1 border-b last:border-b-0 bg-blk-800 hover:bg-blk-700 transition-colors"
-          >
+        const content = (
+          <>
             {hero ? (
               <div className="flex items-center gap-2">
                 <BorderedImage
@@ -90,24 +79,23 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
                   alt={hero.name}
                   className="size-10"
                 />
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold">
-                    {steamProfile?.personaname}
-                  </span>
+                <div className="flex flex-col text-sm font-semibold">
+                  {hasPlayerProfile ? (
+                    <span className="">{steamProfile?.personaname}</span>
+                  ) : (
+                    <span className="text-gray-400">Unknown Player</span>
+                  )}
+
                   <span className="text-xs text-muted-foreground">
                     {hero.name}
                   </span>
                 </div>
               </div>
             ) : (
-              <span>Hero {player.hero_id}</span>
+              <span>Hero Unknown</span>
             )}
             <div className="flex flex-col items-center justify-center text-sm">
-              
-              <div className={cn("font-bold", kdaColor)}>
-                {kdaValue}{" "}
-                KDA
-              </div>
+              <div className={cn("font-bold", kdaColor)}>{kdaValue} KDA</div>
               <div className="text-gray-400 text-xs">
                 {player.kills} / {player.deaths} / {player.assists}
               </div>
@@ -132,7 +120,32 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
                 )}
               />
             </div>
-          </Link>
+          </>
+        );
+
+        if (hasPlayerProfile) {
+          return (
+            <Link
+              key={index}
+              href={`/players/${player.account_id}`}
+              className={cn(
+                "grid grid-cols-5 px-3 py-1 border-b last:border-b-0 bg-blk-800 hover:bg-blk-700 transition-colors cursor-pointer"
+              )}
+            >
+              {content}
+            </Link>
+          );
+        }
+
+        return (
+          <div
+            key={index}
+            className={cn(
+              "grid grid-cols-5 px-3 py-1 border-b last:border-b-0 bg-blk-800 transition-colors"
+            )}
+          >
+            {content}
+          </div>
         );
       })}
     </div>

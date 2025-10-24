@@ -1,6 +1,7 @@
 import BorderedImage from "@/components/bordered-image";
 import { HeroAsset, HeroStats } from "@/lib/types";
-import { cn, getKDAColor } from "@/lib/utils";
+import { cn, formatHeroName, getKDAColor } from "@/lib/utils";
+import Link from "next/link";
 import { useMemo } from "react";
 
 interface TopHeroesProps {
@@ -18,7 +19,7 @@ export default function MatchHistoryMostPlayed({
   );
 
   return (
-    <div className="flex flex-col gap-2 bg-blk-800 p-2 rounded border">
+    <div className="flex flex-col  bg-blk-800 p-2 rounded border">
       <h3 className="text-lg font-semibold">Most Played Heroes</h3>
       {topHeroes.map((heroStat) => {
         const hero = heroMap[heroStat.heroId];
@@ -27,7 +28,11 @@ export default function MatchHistoryMostPlayed({
         if (!hero) return null;
 
         return (
-          <div key={heroStat.heroId} className="flex gap-2 items-center">
+          <Link
+            href={`/heroes/${formatHeroName(hero.name)}/build`}
+            key={heroStat.heroId}
+            className="flex gap-2 items-center hover:bg-blk-700/80 px-1 py-1 rounded transition-all"
+          >
             {hero.images.icon_hero_card ? (
               <>
                 <BorderedImage
@@ -37,13 +42,15 @@ export default function MatchHistoryMostPlayed({
                 />
               </>
             ) : (
-              <div className="w-[36px] h-[36px] bg-blk-500 rounded"></div>
+              <div className="size-9 bg-blk-500 rounded"></div>
             )}
 
             <div className="flex justify-between items-center w-full text-sm ">
               <div className="flex-1">{hero.name}</div>
               <div className="flex-1 flex flex-col items-center">
-                <div className={cn("font-bold", kdaColor)}>{heroStat.kda} KDA</div>
+                <div className={cn("font-bold", kdaColor)}>
+                  {heroStat.kda} KDA
+                </div>
                 <div className="text-xs text-gray-300">
                   {heroStat.avgKills} / {heroStat.avgDeaths} /{" "}
                   {heroStat.avgAssists}
@@ -65,7 +72,7 @@ export default function MatchHistoryMostPlayed({
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>

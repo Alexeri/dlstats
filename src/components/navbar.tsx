@@ -1,5 +1,6 @@
 "use client";
 import { SearchTrigger } from "@/components/search/search-trigger";
+import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,6 +16,7 @@ const links = [
 export default function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const activeLink = links.find((link) => pathname.startsWith(link.href));
 
   return (
     <div className="flex items-center justify-between px-4 sticky top-0 left-0 z-50 gap-8 bg-blk-800 min-2xl:grid min-2xl:grid-cols-3 min-2xl:justify-center h-[50px]">
@@ -33,7 +35,9 @@ export default function Navbar() {
             <Link
               href={link.href}
               key={link.href}
-              className="py-1.5 px-3.5 text-sm font-semibold text-gray-300 hover:text-white transition-colors"
+              className={cn("py-1.5 px-3.5 text-sm font-semibold text-gray-300 hover:text-white transition-colors",
+                activeLink?.href === link.href && "bg-brand/15 rounded text-white"
+              )}
             >
               {link.label}
             </Link>

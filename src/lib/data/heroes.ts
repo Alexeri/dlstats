@@ -1,4 +1,10 @@
-import { HeroAsset, HeroWinRate, Item, TieredHeroData } from "@/lib/types";
+import {
+  HeroAsset,
+  HeroCounterStat,
+  HeroWinRate,
+  Item,
+  TieredHeroData,
+} from "@/lib/types";
 import { generateTierList, resolveTimeframeToUnix } from "@/lib/utils";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -29,9 +35,12 @@ export async function getHeroWinRate(
 }
 
 export async function getAllHeroesAssets(): Promise<HeroAsset[]> {
-  const res = await fetch("https://assets.deadlock-api.com/v2/heroes?only_active=1", {
-    cache: "no-store",
-  });
+  const res = await fetch(
+    "https://assets.deadlock-api.com/v2/heroes?only_active=1",
+    {
+      cache: "no-store",
+    }
+  );
 
   if (!res.ok) {
     throw new Error(`Failed to fetch hero stats: ${res.status}`);
@@ -133,8 +142,9 @@ export async function getItemStatsByHero({
   return res.json();
 }
 
-
-export async function getItemsBySlotType(slotType: "weapon" | "vitality" | "spirit"): Promise<Item[]> {
+export async function getItemsBySlotType(
+  slotType: "weapon" | "vitality" | "spirit"
+): Promise<Item[]> {
   const res = await fetch(
     `https://assets.deadlock-api.com/v2/items/by-slot-type/${slotType}`,
     { cache: "no-store" }
@@ -156,4 +166,32 @@ export async function getAllItems(): Promise<Item[]> {
   ]);
 
   return [...weapon, ...vitality, ...spirit];
+}
+
+export async function getHeroCounters({
+  min_average_badge,
+  timeframe,
+  min_matches = 20,
+  same_lane_filter = false,
+}: {
+  min_average_badge: string;
+  timeframe: string;
+  min_matches?: number;
+  same_lane_filter?: boolean;
+}): Promise<HeroCounterStat[]> {
+  const min_unix_timestamp = resolveTimeframeToUnix(timeframe);
+
+  const url = new URL(
+    "https://api.deadlock-api.com/v1/analytics/hero-counter-stats"
+  );
+  url.searchParams.set("min_average_badge", min_average_badge);
+  url.searchParams.set("min_unix_timestamp", min_unix_timestamp.toString());
+  url.searchParams.set("min_matches", min_matches.toString());
+  url.searchParams.set("same_lane_filter", same_lane_filter ? "true" : "false");
+
+  const res = await fetch(url.toString());
+
+  if (!res.ok) throw new Error("Failed to fetch hero counters");
+  const data = (await res.json()) as HeroCounterStat[];
+  return data;
 }

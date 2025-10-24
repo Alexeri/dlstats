@@ -1,24 +1,38 @@
+import { getQueryClient } from "@/app/get-query-client";
 import BorderedImage from "@/components/bordered-image";
 import ItemCard from "@/components/item-card";
-import { getAllItems } from "@/lib/data/heroes";
-import { EnrichedHeroItemStat, HeroItemStat } from "@/lib/types";
-import { cn, getWinRateClass } from "@/lib/utils";
+import {
+  getAllItems,
+  getItemStatsByHero,
+  getTierListData,
+} from "@/lib/data/heroes";
+import {
+  EnrichedHeroItemStat,
+  HeroItemStat,
+  Item,
+  TieredHeroData,
+} from "@/lib/types";
+import {
+  cn,
+  formatHeroName,
+  formatStatNumber,
+  getWinRateClass,
+  unformatHeroName,
+} from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useParams, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
-interface HeroItemStatsProps {
-  itemStats: HeroItemStat[];
-  totalMatches?: number;
-  isLoading: boolean;
-  error: Error | null;
-}
+export default function HeroItemStats() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const name = unformatHeroName(params.name as string);
+  const rank = searchParams.get("rank") ?? "80";
+  const timeframe = searchParams.get("timeframe") ?? "patch";
 
-export default function HeroItemStats({
-  itemStats,
-  totalMatches,
-  isLoading,
-  error,
-}: HeroItemStatsProps) {
+  const queryClient = getQueryClient();
+  const hero = queryClient.getQueryData<{ id: number }>(["hero", name]);
+
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [tierFilters, setTierFilters] = useState<{
     weapon: number | "all";
@@ -34,11 +48,65 @@ export default function HeroItemStats({
     data: allItems,
     isLoading: itemsLoading,
     error: itemsError,
-  } = useQuery({
+  } = useQuery<Item[]>({
     queryKey: ["items", "all"],
     queryFn: getAllItems,
     staleTime: 1000 * 60 * 60 * 24, // 24h
   });
+
+  const {
+    data: itemStats,
+    isLoading: itemStatsLoading,
+    error: itemStatsError,
+  } = useQuery<HeroItemStat[]>({
+    queryKey: ["item-stats", hero?.id, rank, timeframe],
+    queryFn: () =>
+      getItemStatsByHero({
+        hero_id: hero!.id,
+        min_average_badge: rank,
+        timeframe,
+      }),
+    enabled: !!hero,
+  });
+
+  const { data: tierList } = useQuery<TieredHeroData[]>({
+    queryKey: ["tierlist", rank, timeframe],
+    queryFn: () => getTierListData(queryClient, rank, timeframe),
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const isLoading = itemsLoading || itemStatsLoading;
+  const error = itemsError ?? itemStatsError;
+
+  if (isLoading) {
+    return (
+      <div className="bg-blk-800 border p-4 rounded space-y-4">
+        <div>Item Stats</div>
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className="flex flex-col gap-2 bg-blk-700 p-2 rounded border animate-pulse h-[184px]"
+          >
+            <div className="grid grid-cols-5 gap-2">
+              {[...Array(5)].map((_, j) => (
+                <div key={j} className="h-6 bg-blk-600 rounded" />
+              ))}
+            </div>
+            <div className="flex gap-3 mt-2 overflow-hidden">
+              {[...Array(6)].map((_, j) => (
+                <div key={j} className="flex flex-col items-center gap-1">
+                  <div className="size-12 bg-blk-600 rounded" />
+                  <div className="h-3 w-10 bg-blk-600 rounded" />
+                  <div className="h-3 w-8 bg-blk-600 rounded" />
+                  <div className="h-3 w-6 bg-blk-600 rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const enriched: EnrichedHeroItemStat[] =
     itemStats
@@ -47,6 +115,12 @@ export default function HeroItemStats({
         return item ? { ...stat, item } : null;
       })
       .filter((s): s is EnrichedHeroItemStat => s !== null) ?? [];
+
+  const heroStats = tierList?.find(
+    (h) => formatHeroName(h.asset?.name ?? "") === formatHeroName(name)
+  );
+
+  const totalMatches = heroStats?.matches ?? 0;
 
   const sortedByPickrate = enriched.sort((a, b) => {
     const aPickrate = totalMatches ? a.matches / totalMatches : 0;
@@ -67,8 +141,6 @@ export default function HeroItemStats({
       spirit: [] as EnrichedHeroItemStat[],
     }
   );
-
-  if (isLoading || itemsLoading) return <p>Loading item stats...</p>;
   if (error || itemsError)
     return <p>Error loading item stats: {(error ?? itemsError)?.message}</p>;
   if (!enriched?.length) return <p>No item stats available for this hero.</p>;
@@ -201,7 +273,7 @@ export default function HeroItemStats({
                               : "0.0"}
                             %
                           </p>
-                          <p>{total}</p>
+                          <p>{formatStatNumber(total)}</p>
                         </div>
                       </div>
                     );

@@ -20,6 +20,7 @@ import { getSubrankImage } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getAllHeroesAssets } from "@/lib/data/heroes";
 import { useMemo } from "react";
+import Link from "next/link";
 
 interface LeaderboardTableProps {
   data: LeaderboardPlayer[];
@@ -152,6 +153,7 @@ export default function LeaderboardTable({ data }: LeaderboardTableProps) {
       <TableBody>
         {table.getRowModel().rows.map((row) => {
           return (
+            <Link href={`/players/${row.original.possible_account_ids[0]}`} key={row.id}>
             <TableRow
               key={row.id}
               className="grid grid-cols-[80px_2fr_1fr_2fr] hover:bg-blk-700 border-b border-blk-700 transition-colors"
@@ -166,6 +168,7 @@ export default function LeaderboardTable({ data }: LeaderboardTableProps) {
                 </TableCell>
               ))}
             </TableRow>
+            </Link>
           );
         })}
       </TableBody>
