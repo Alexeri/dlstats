@@ -16,6 +16,12 @@ import {
   getWinRateClass,
 } from "@/lib/utils";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
+import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
@@ -23,7 +29,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronsUpDown, ChevronUp, Info } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -63,7 +69,24 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
       enableSorting: true,
     }),
     columnHelper.accessor("tier", {
-      header: "Tier",
+      header: () => (
+        <div className="flex items-center gap-1">
+          Tier
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className=" " size={12} />
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="text-xs text-gray-200 font-normal p-2 bg-blk-800/80 rounded border border-blk-500 "
+              >
+                Hero performance tier based on win rate and pick rate.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ),
       cell: (info) => {
         const hero = info.row.original;
         return (

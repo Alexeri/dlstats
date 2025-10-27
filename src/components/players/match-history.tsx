@@ -38,7 +38,7 @@ export default function MatchHistoryComponent({
   isLoading,
   error,
 }: MatchHistoryProps) {
-  const [visibleCount, setVisibleCount] = useState(3);
+  const [visibleCount, setVisibleCount] = useState(6);
   const [, forceRender] = useReducer((x) => x + 1, 0); // force re-render for loading new matches
 
   const heroMap = useMemo(
