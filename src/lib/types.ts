@@ -138,18 +138,16 @@ export interface MatchMetadata {
   game_mode: string;
   match_id: number;
   players: MatchMetadataPlayer[];
-  winning_team: number;
+  winning_team: number | string;
 }
 export interface MatchMetadataPlayer {
   account_id: number;
   hero_id: number;
-  items: [
-    {
-      item_id: number;
-      sold_time_s: number;
-      upgrade_id: number;
-    }
-  ];
+  items: {
+    item_id: number;
+    sold_time_s: number;
+    upgrade_id: number;
+  }[];
   player_slot: number;
   team: string | number;
   kills: number;
@@ -157,21 +155,20 @@ export interface MatchMetadataPlayer {
   assists: number;
   net_worth: number;
   last_hits: number;
-  stats: [
-    {
-      player_damage: number;
-      player_healing: number;
-      boss_damage: number;
-    }
-  ];
+  stats: {
+    player_damage: number;
+    player_healing: number;
+    boss_damage: number;
+    net_worth?: number;
+  }[];
 }
-export interface MatchRecent{
-  match_id: number
-  start_time: number
-  duration_s: number
-  match_mode: number
-  average_badge_team0: number
-  average_badge_team1: number
+export interface MatchRecent {
+  match_id: number;
+  start_time: number;
+  duration_s: number;
+  match_mode: number;
+  average_badge_team0: number;
+  average_badge_team1: number;
 }
 
 export interface HeroStats {

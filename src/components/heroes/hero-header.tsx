@@ -23,7 +23,6 @@ const tabs = [
   { label: "Counters", href: "counters" },
   { label: "Synergies", href: "synergies" },
   { label: "Leaderboards", href: "leaderboards" },
-  { label: "Community Builds", href: "community-builds", new: true },
 ];
 
 export default function HeroHeader({ name }: { name: string }) {
@@ -92,7 +91,7 @@ export default function HeroHeader({ name }: { name: string }) {
           <div className="flex flex-col justify-between">
             <div className="flex items-baseline gap-4">
               <h2 className="text-white text-4xl font-bold">{hero.name}</h2>
-              <span className="text-3xl text-gray-400 font-medium">
+              <span className="hidden md:block text-3xl text-gray-400 font-medium">
                 {Number(rank) === 0
                   ? "All Ranks"
                   : `${getRankName(Number(rank))} +`}{" "}
@@ -110,7 +109,7 @@ export default function HeroHeader({ name }: { name: string }) {
                 abilitiesLoading={!abilities}
                 abilitiesError={undefined}
               />
-              <span className="text-sm font-thin max-w-2xl text-gray-200 leading-4">
+              <span className="hidden md:block text-sm font-thin max-w-2xl text-gray-200 leading-4">
                 {hero.description.playstyle
                   ? hero.description.playstyle
                   : "We don't know anything about this hero yet..."}
@@ -136,11 +135,6 @@ export default function HeroHeader({ name }: { name: string }) {
                 )}
               >
                 {tab.label}
-                {tab.new === true ? (
-                  <div className="absolute top-1 -right-4 text-brand text-xs font-bold">
-                    NEW
-                  </div>
-                ) : null}
               </Link>
             );
           })}

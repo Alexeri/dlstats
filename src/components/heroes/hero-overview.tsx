@@ -38,23 +38,20 @@ export default function HeroOverview() {
   );
 
   return (
-    <div className="grid sm:grid-cols-2 gap-4 mt-4 ">
+    <div className="grid sm:grid-cols-2 gap-8 mt-4 bg-blk-800/40 border p-4 rounded">
       {Object.entries(groupedHeroes).map(([type, heroes]) => (
-        <section
-          key={type}
-          className="bg-blk-800/40 p-4 rounded border border-blk-500"
-        >
-          <h2 className="text-2xl font-bold capitalize text-white mb-1">
+        <section key={type} className="rounded ">
+          <h2 className="text-xl font-bold capitalize text-white mb-1">
             {type}
           </h2>
 
-          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1">
+          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-1">
             {heroes.map((hero) => (
               <Link
                 href={`/heroes/${formatHeroName(hero.name)}/build`}
                 key={hero.id}
                 className={cn(
-                  "relative h-[150px] bg-blk-900/80 border border-blk-500 rounded group hover:shadow-xl hover:shadow-brand/20 hover:border-brand/40 hover:scale-[1.02] transition-all",
+                  "relative h-[100px] bg-blk-900/80 border border-blk-500 rounded group hover:shadow-xl hover:shadow-brand/20 hover:border-brand/40 hover:scale-[1.02] transition-all",
                   hero.hero_type === "assassin" && "bg-blue-600/5",
                   hero.hero_type === "brawler" && "bg-green-600/5",
                   hero.hero_type === "marksman" && "bg-orange-600/5",
@@ -71,13 +68,17 @@ export default function HeroOverview() {
                 <div
                   className={cn(
                     "absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t  rounded-b group-hover:from-brand/80 group-hover:animate-pulse transition-all rounded",
-                    hero.hero_type === "assassin" && "group-hover:from-blue-400/80",
-                    hero.hero_type === "brawler" && "group-hover:from-green-400/80",
-                    hero.hero_type === "marksman" && "group-hover:from-orange-400/80",
-                    hero.hero_type === "mystic" && "group-hover:from-violet-400/80"
+                    hero.hero_type === "assassin" &&
+                      "group-hover:from-blue-400/80",
+                    hero.hero_type === "brawler" &&
+                      "group-hover:from-green-400/80",
+                    hero.hero_type === "marksman" &&
+                      "group-hover:from-orange-400/80",
+                    hero.hero_type === "mystic" &&
+                      "group-hover:from-violet-400/80"
                   )}
                 ></div>
-                <div className="absolute bottom-1 w-full text-center drop-shadow font-bold uppercase">
+                <div className="absolute bottom-1 w-full text-center drop-shadow font-bold uppercase text-xs">
                   {hero.name}
                 </div>
               </Link>

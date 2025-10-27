@@ -46,7 +46,7 @@ export default function FilterData({
     currentRegion !== "Europe";
 
   return (
-    <div className="flex items-center gap-4 w-full">
+    <div className="flex flex-col items-start gap-4 w-full sm:flex-row sm:items-center">
       <div className="flex items-center gap-2 mr-2">
         <ListFilter size={18} />
         <span className="font-semibold">Filters</span>
@@ -59,7 +59,7 @@ export default function FilterData({
               value={currentRank}
               onValueChange={(value) => updateSearchParam("rank", value)}
             >
-              <SelectTrigger className="w-[180px] cursor-pointer">
+              <SelectTrigger className="sm:w-[150px] cursor-pointer">
                 <SelectValue placeholder="Rank" />
               </SelectTrigger>
               <SelectContent>
@@ -96,7 +96,7 @@ export default function FilterData({
               value={currentTimeframe}
               onValueChange={(value) => updateSearchParam("timeframe", value)}
             >
-              <SelectTrigger className="w-[180px] cursor-pointer">
+              <SelectTrigger className="sm:w-[150px] cursor-pointer">
                 <SelectValue placeholder="Timeframe" />
               </SelectTrigger>
               <SelectContent>

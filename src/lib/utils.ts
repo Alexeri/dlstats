@@ -446,7 +446,7 @@ export function getKDAColor(kda: number) {
   if (kda >= 5) return "text-amber-500";
   if (kda >= 4) return "text-blue-400";
   if (kda >= 3) return "text-green-400";
-  return "text-gray-200";
+  return "text-gray-400";
 }
 
 const RANK_NAMES = [
@@ -500,4 +500,88 @@ export function steamId3ToSteamId64(steamId3: string | number): string | null {
     console.warn(`Error converting SteamID3: ${steamId3}`, error);
     return null;
   }
+}
+
+export interface HeroSummary {
+  hero_id: number;
+  games: number;
+  wins: number;
+  losses: number;
+  winRate: number;
+  avgKills: number;
+  avgDeaths: number;
+  avgAssists: number;
+  kda: string;
+}
+
+export function calculateHeroStatsFromMatches(history: MatchHistory[]): HeroSummary[] {
+  if (!history || history.length === 0) return [];
+
+  const heroMap = new Map<number, { 
+    games: number; 
+    wins: number; 
+    kills: number; 
+    deaths: number; 
+    assists: number; 
+  }>();
+
+  for (const match of history) {
+    const {
+      hero_id,
+      player_team,
+      match_result,
+      player_kills,
+      player_deaths,
+      player_assists,
+    } = match;
+
+    const isWin = player_team === match_result;
+    const stats = heroMap.get(hero_id) ?? {
+      games: 0,
+      wins: 0,
+      kills: 0,
+      deaths: 0,
+      assists: 0,
+    };
+
+    stats.games += 1;
+    stats.kills += player_kills;
+    stats.deaths += player_deaths;
+    stats.assists += player_assists;
+    if (isWin) stats.wins += 1;
+
+    heroMap.set(hero_id, stats);
+  }
+
+  // Convert to clean array + derived stats
+  const summaries: HeroSummary[] = Array.from(heroMap.entries()).map(
+    ([hero_id, stats]) => {
+      const losses = stats.games - stats.wins;
+      const winRate = Math.round((stats.wins / stats.games) * 100);
+      const avgKills = +(stats.kills / stats.games).toFixed(1);
+      const avgDeaths = +(stats.deaths / stats.games).toFixed(1);
+      const avgAssists = +(stats.assists / stats.games).toFixed(1);
+      const kda =
+        stats.deaths > 0
+          ? ((stats.kills + stats.assists) / stats.deaths).toFixed(1)
+          : (stats.kills + stats.assists).toFixed(1);
+
+      return {
+        hero_id,
+        games: stats.games,
+        wins: stats.wins,
+        losses,
+        winRate,
+        avgKills,
+        avgDeaths,
+        avgAssists,
+        kda,
+      };
+    }
+  );
+
+  // sort heroes by most played
+  summaries.sort((a, b) => b.games - a.games);
+
+  return summaries;
 }

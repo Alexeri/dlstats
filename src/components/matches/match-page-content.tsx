@@ -50,17 +50,17 @@ export default function MatchPageContent({ matchId }: { matchId: number }) {
               winningTeam={matchData.match_info.winning_team as 0 | 1}
               rank={matchData.match_info.average_badge_team0}
             />
-            <div className="flex justify-between items-center  shrink-0 gap-4 bg-blk-700 p-2 rounded border border-blk-500">
-              <div className={cn("text-3xl font-bold bg-blk-800 px-4 py-2.5 rounded text-gray-200 border border-blk-500")}>
+            <div className="flex justify-between items-center shrink-0 gap-4 bg-blk-700 px-2 py-1 rounded border border-blk-500">
+              <div className={cn("text-md md:text-lg xl:text-3xl font-bold bg-blk-800 px-4 py-2.5 rounded text-gray-200 border border-blk-500")}>
                 {formatNumber(team0.netWorth)}
               </div>
               <div className="flex flex-col items-center justify-between">
                 <div className="text-xs">Game Time</div>
-                <div className="font-semibold text-lg leading-5">
+                <div className="font-semibold text-sm md:text-base xl:text-lg leading-5">
                   {formatDuration(matchData.match_info.duration_s)}
                 </div>
               </div>
-              <div className={cn("text-3xl font-bold bg-blk-800 px-4 py-2.5 rounded text-gray-200 border border-blk-500")}>
+              <div className={cn("text-md md:text-lg xl:text-3xl font-bold bg-blk-800 px-4 py-2.5 rounded text-gray-200 border border-blk-500")}>
                 {formatNumber(team1.netWorth)}
               </div>
             </div>

@@ -55,7 +55,7 @@ export default function TierlistSnippet() {
           const winrateColor = getWinRateClass(hero.winRate);
           return (
             <Link
-              href={`/heroes/${formatHeroName(hero.asset?.name ?? "")}`}
+              href={`/heroes/${formatHeroName(hero.asset?.name ?? "")}/build`}
               key={hero.hero_id}
               className="grid grid-cols-4 items-center text-center py-1 border-b last:opacity-60 hover:bg-blk-700 transition-all"
             >

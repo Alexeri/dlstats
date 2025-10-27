@@ -182,27 +182,57 @@ export default function HeroCountersTable({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <Link
-              href={`/heroes/${formatHeroName(
-                row.original.enemy_hero_name ?? ""
-              )}/build`}
-              key={row.id}
-            >
-              <TableRow className="grid grid-cols-3 hover:bg-blk-700 border-b border-blk-700 transition-colors">
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className="flex items-center text-[16px]"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </Link>
-          ))}
+          {data.length === 0 ? (
+            <LoadingRows count={20} />
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <Link
+                href={`/heroes/${formatHeroName(
+                  row.original.enemy_hero_name ?? ""
+                )}/build`}
+                key={row.id}
+              >
+                <TableRow className="grid grid-cols-3 hover:bg-blk-700 border-b border-blk-700 transition-colors">
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      className="flex items-center text-[16px]"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </Link>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+function LoadingRows({ count = 20 }: { count?: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <TableRow
+          key={i}
+          className="grid grid-cols-3 border-b border-blk-700 animate-pulse min-h-[45px] items-center"
+        >
+          <TableCell className="flex items-center h-8">
+            <div className="h-5 w-3/4 bg-blk-600 rounded"></div>
+          </TableCell>
+          <TableCell className="flex items-center h-8">
+            <div className="h-5 w-1/2 bg-blk-600 rounded"></div>
+          </TableCell>
+          <TableCell className="flex items-center h-8">
+            <div className="h-5 w-1/3 bg-blk-600 rounded"></div>
+          </TableCell>
+        </TableRow>
+      ))}
+    </>
   );
 }
