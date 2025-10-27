@@ -21,7 +21,7 @@ import Link from "next/link";
 const tabs = [
   { label: "Build", href: "build" },
   { label: "Counters", href: "counters" },
-  { label: "Synergies", href: "synergies" },
+  /* { label: "Synergies", href: "synergies" }, */
   { label: "Leaderboards", href: "leaderboards" },
 ];
 

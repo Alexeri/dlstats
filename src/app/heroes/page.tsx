@@ -1,6 +1,6 @@
 import HeroOverview from "@/components/heroes/hero-overview";
 import SectionHeader from "@/components/section-header";
-import { Swords } from "lucide-react";
+import { VenetianMask } from "lucide-react";
 
 export default function HeroesPage() {
   return (
@@ -8,7 +8,7 @@ export default function HeroesPage() {
       <SectionHeader
         title="Hero Roster"
         subtitle="Browse the complete roster of heroes and discover their unique abilities."
-        icon={<Swords size={50} />}
+        icon={<VenetianMask size={50} />}
       />
       <div className="max-w-7xl mx-auto px-4 xl:px-0 min-h-[500px]">
         <HeroOverview />
