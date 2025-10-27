@@ -25,6 +25,7 @@ export async function getMatchesMetadata(
   const params = new URLSearchParams({
     match_ids: matchIds.join(","),
     include_player_items: "true",
+    include_player_stats: "true",
   });
 
   const res = await fetch(

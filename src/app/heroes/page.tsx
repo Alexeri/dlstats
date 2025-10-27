@@ -10,7 +10,7 @@ export default function HeroesPage() {
         subtitle="Browse the complete roster of heroes and discover their unique abilities."
         icon={<Swords size={50} />}
       />
-      <div className="max-w-7xl mx-auto px-4 xl:px-0">
+      <div className="max-w-7xl mx-auto px-4 xl:px-0 min-h-[500px]">
         <HeroOverview />
       </div>
     </>

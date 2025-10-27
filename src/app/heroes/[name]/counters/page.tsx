@@ -19,7 +19,7 @@ export default function CountersPage() {
     staleTime: 1000 * 60 * 60 * 24,
   });
 
-  const { data: gameCounters, isLoading: gameCountersLoading } = useQuery({
+  const { data: gameCounters } = useQuery({
     queryKey: ["hero-counters", rank, timeframe, "game"],
     queryFn: () =>
       getHeroCounters({
@@ -28,7 +28,7 @@ export default function CountersPage() {
       }),
   });
 
-  const { data: laneCounters, isLoading: laneCountersLoading } = useQuery({
+  const { data: laneCounters } = useQuery({
     queryKey: ["hero-counters", rank, timeframe, "lane"],
     queryFn: () =>
       getHeroCounters({
@@ -38,18 +38,12 @@ export default function CountersPage() {
       }),
   });
 
-  const isLoading = gameCountersLoading || laneCountersLoading;
-
-  if (isLoading) {
-    return <div className="bg-blk-800 border p-4 rounded animate-pulse h-40" />;
-  }
-
   const uppercaseName =
     name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   return (
     <div className="flex flex-col gap-4">
       <FilterData hideFilters={{ region: true }} />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid lg:grid-cols-2 gap-4">
         <HeroCountersTable
           title={uppercaseName + " Game Counters"}
           subtitle={`The champions listed below counter ${uppercaseName} effectively, showing higher win rates in matches against them.`}

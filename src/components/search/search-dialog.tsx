@@ -60,12 +60,12 @@ export default function SearchDialog() {
               </div>
             )}
           </div>
-          <div className="max-h-[400px] overflow-y-auto">
+          <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
 
             {/* no input yet */}
             {showEmptyPrompt && (
               <div className="text-center text-sm text-muted-foreground py-4">
-                Enter a Hero Name or your SteamID3 URL
+                Enter a Hero Name
               </div>
             )}
 

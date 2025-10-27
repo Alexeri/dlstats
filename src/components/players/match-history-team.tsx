@@ -30,9 +30,9 @@ export default function MatchHistoryTeam({
               <BorderedImage
               src={hero.images.icon_image_small}
               alt={hero.name}
-              className="size-5"
+              className="size-4"
             />
-            ):(<div className="size-5 bg-blk-200"></div>)}
+            ):(<div className="size-4 bg-blk-200"></div>)}
             
             <span
               className={cn(

@@ -41,7 +41,7 @@ export default function TeamTitle({
       >
         <div
           className={cn(
-            "text-4xl font-bold",
+            "text-lg md:text-2xl xl:text-4xl font-bold",
             teamIndex === 0 ? "text-amberhand" : "text-sapphireflame"
           )}
         >
@@ -50,7 +50,7 @@ export default function TeamTitle({
         <div className={`flex ${justify}`}>
           <div
             className={cn(
-              "px-3 rounded text-black font-medium bg-blk-600 flex items-center gap-1",
+              "text-sm xl:text-base px-3 rounded text-black font-medium bg-blk-600 flex items-center gap-1",
               {
                 "bg-green-400/15 border-green-400/30 border text-green-400":
                   isWinner,

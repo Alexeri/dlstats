@@ -26,10 +26,10 @@ export default function Navbar() {
           <h1 className="font-bold text-white">DEADLOCK TRACKER</h1>
         </Link>
       </div>
-      <div className="w-full my-2 rounded md:basis-1/3">
+      <div className="hidden lg:block w-full my-2 rounded md:basis-1/3">
         {!isHome && <SearchTrigger />}
       </div>
-      <div className="hidden min-md:flex justify-end basis-1/3">
+      <div className="hidden lg:flex justify-end basis-1/3">
         <div className="flex gap-1">
           {links.map((link) => (
             <Link
@@ -44,7 +44,7 @@ export default function Navbar() {
           ))}
         </div>
       </div>
-      <div className="flex justify-end md:hidden">
+      <div className="flex justify-end lg:hidden">
         <Menu color="white" />
       </div>
     </div>

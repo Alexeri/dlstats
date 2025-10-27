@@ -129,7 +129,7 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
               key={index}
               href={`/players/${player.account_id}`}
               className={cn(
-                "grid grid-cols-5 px-3 py-1 border-b last:border-b-0 bg-blk-800 hover:bg-blk-700 transition-colors cursor-pointer"
+                "grid grid-cols-5 px-3 py-1 border-b last:border-b-0 bg-blk-800 hover:bg-blk-700 transition-colors cursor-pointer last:rounded"
               )}
             >
               {content}

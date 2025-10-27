@@ -20,7 +20,7 @@ export default function MatchHistoryMostPlayed({
 
   return (
     <div className="flex flex-col  bg-blk-800 p-2 rounded border">
-      <h3 className="text-lg font-semibold">Most Played Heroes</h3>
+      <h3 className="px-1 text-md font-semibold">Most Played Heroes</h3>
       {topHeroes.map((heroStat) => {
         const hero = heroMap[heroStat.heroId];
         const kdaColor = getKDAColor(Number(heroStat.kda));

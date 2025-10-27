@@ -122,38 +122,51 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow
             key={headerGroup.id}
-            className="grid grid-cols-[100px_2fr_1fr_1fr_1fr_1fr] hover:bg-blk-700 bg-blk-700 border-b-blk-500"
+            className="
+                grid grid-cols-[1fr_2fr_1fr]
+                md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr]
+                bg-blk-700 border-b border-blk-500
+              "
           >
             <TableHead className="flex items-center uppercase text-xs font-bold text-gray-400 select-none">
               Rank
             </TableHead>
-            {headerGroup.headers.map((header) => (
-              <TableHead
-                key={header.id}
-                className={cn(
-                  "flex items-center uppercase text-xs font-bold cursor-pointer select-none",
-                  header.column.getIsSorted() ? "text-white" : "text-gray-400"
-                )}
-                onClick={header.column.getToggleSortingHandler()}
-              >
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+            {headerGroup.headers.map((header) => {
+              const id = header.column.id;
 
-                {header.column.getIsSorted() === "asc" && (
-                  <ChevronUp className="ml-1 w-3 h-3" />
-                )}
-                {header.column.getIsSorted() === "desc" && (
-                  <ChevronDown className="ml-1 w-3 h-3" />
-                )}
-                {header.column.getIsSorted() === false && (
-                  <ChevronsUpDown className="ml-1 w-3 h-3 text-gray-400" />
-                )}
-              </TableHead>
-            ))}
+              const hiddenClass =
+                id === "winRate" || id === "pickRate" || id === "matches"
+                  ? "hidden md:flex"
+                  : "flex";
+              return (
+                <TableHead
+                  key={header.id}
+                  className={cn(
+                    hiddenClass,
+                    "items-center uppercase text-xs font-bold cursor-pointer select-none",
+                    header.column.getIsSorted() ? "text-white" : "text-gray-400"
+                  )}
+                  onClick={header.column.getToggleSortingHandler()}
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+
+                  {header.column.getIsSorted() === "asc" && (
+                    <ChevronUp className="ml-1 w-3 h-3" />
+                  )}
+                  {header.column.getIsSorted() === "desc" && (
+                    <ChevronDown className="ml-1 w-3 h-3" />
+                  )}
+                  {header.column.getIsSorted() === false && (
+                    <ChevronsUpDown className="ml-1 w-3 h-3 text-gray-400" />
+                  )}
+                </TableHead>
+              );
+            })}
           </TableRow>
         ))}
       </TableHeader>
@@ -166,18 +179,37 @@ export default function TierlistTable({ heroes }: TierlistTableProps) {
               href={`/heroes/${formatHeroName(hero.asset?.name ?? "")}/build`}
               key={row.id}
             >
-              <TableRow className="grid grid-cols-[100px_2fr_1fr_1fr_1fr_1fr] hover:bg-blk-700 border-b border-blk-700 transition-colors">
+              <TableRow
+                className="
+                    grid grid-cols-[1fr_2fr_1fr]
+                    md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr]
+                    hover:bg-blk-700 border-b border-blk-700 transition-colors
+                  "
+              >
                 <TableCell className="flex items-center text-[16px] font-semibold text-gray-200">
                   {rowIndex + 1}
                 </TableCell>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className="flex items-center  text-[16px] text-gray-300"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  const id = cell.column.id;
+                  const hiddenClass =
+                    id === "winRate" || id === "pickRate" || id === "matches"
+                      ? "hidden md:flex"
+                      : "flex";
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        hiddenClass,
+                        "items-center text-[16px] text-gray-300"
+                      )}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             </Link>
           );

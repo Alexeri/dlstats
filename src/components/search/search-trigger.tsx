@@ -19,7 +19,7 @@ export function SearchTrigger({ className, large  }: { className?: string, large
 
       <div className="flex gap-2 items-center">
         <Search className="w-4 h-4" />
-        <span className="">Search Player or Hero</span>
+        <span className="">Search Hero</span>
       </div>
       <span className="bg-blk-700 border border-blk-500 px-2 rounded text-xs flex items-center">Ctrl K</span>
     </button>
