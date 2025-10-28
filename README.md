@@ -32,6 +32,7 @@ Built with **Next.js 15**, **TypeScript**, and **TanStack Query**, the app provi
 - [Tanstack Query v5](https://tanstack.com/query/latest)
 - [Tailwind CSS 4](https://tailwindcss.com/)
 - [Shadcn UI](https://ui.shadcn.com/)
+- [Tanstack Table v8](https://tanstack.com/table/latest)
 - [Deadlock API](https://deadlock-api.com/)
 
 ## 🎨 Screenshots
