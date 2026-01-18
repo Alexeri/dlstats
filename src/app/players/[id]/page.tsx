@@ -1,6 +1,6 @@
 import { getQueryClient } from "@/app/get-query-client";
 import PlayerPage from "@/components/players/player-page";
-import { getPlayersBySteamId } from "@/lib/data/players";
+import { playerQueries } from "@/lib/queries/players";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 export default async function Players({
@@ -12,10 +12,7 @@ export default async function Players({
 
   const queryClient = getQueryClient();
 
-  await queryClient.fetchQuery({
-    queryKey: ["player", id],
-    queryFn: () => getPlayersBySteamId(id),
-  });
+  await queryClient.fetchQuery(playerQueries.getById(id));
   
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

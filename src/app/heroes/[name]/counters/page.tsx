@@ -1,7 +1,7 @@
 "use client";
 import FilterData from "@/components/filter-data";
 import HeroCountersTable from "@/components/heroes/hero-counters";
-import { getAllHeroesAssets, getHeroCounters } from "@/lib/data/heroes";
+import { heroQueries } from "@/lib/queries/heroes";
 import { unformatHeroName } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
@@ -13,30 +13,10 @@ export default function CountersPage() {
   const rank = searchParams.get("rank") ?? "80";
   const timeframe = searchParams.get("timeframe") ?? "patch";
 
-  const { data: heroes } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24,
-  });
-
-  const { data: gameCounters } = useQuery({
-    queryKey: ["hero-counters", rank, timeframe, "game"],
-    queryFn: () =>
-      getHeroCounters({
-        min_average_badge: rank,
-        timeframe,
-      }),
-  });
-
-  const { data: laneCounters } = useQuery({
-    queryKey: ["hero-counters", rank, timeframe, "lane"],
-    queryFn: () =>
-      getHeroCounters({
-        min_average_badge: rank,
-        timeframe,
-        same_lane_filter: true,
-      }),
-  });
+  const { data: heroes } = useQuery(heroQueries.assets());
+  
+  const { data: gameCounters } = useQuery(heroQueries.gameCounters(rank, timeframe));
+  const { data: laneCounters } = useQuery(heroQueries.laneCounters(rank, timeframe));
 
   const uppercaseName =
     name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();

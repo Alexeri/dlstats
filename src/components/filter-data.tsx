@@ -59,7 +59,7 @@ export default function FilterData({
               value={currentRank}
               onValueChange={(value) => updateSearchParam("rank", value)}
             >
-              <SelectTrigger className="sm:w-[150px] cursor-pointer">
+              <SelectTrigger className="sm:w-[160px] cursor-pointer">
                 <SelectValue placeholder="Rank" />
               </SelectTrigger>
               <SelectContent>

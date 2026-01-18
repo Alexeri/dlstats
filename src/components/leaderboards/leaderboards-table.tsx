@@ -18,9 +18,9 @@ import { HeroAsset, LeaderboardPlayer } from "@/lib/types";
 import BorderedImage from "@/components/bordered-image";
 import { cn, getSubrankImage } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { getAllHeroesAssets } from "@/lib/data/heroes";
 import { useMemo } from "react";
 import Link from "next/link";
+import { heroQueries } from "@/lib/queries/heroes";
 
 interface LeaderboardTableProps {
   data: LeaderboardPlayer[];
@@ -33,11 +33,7 @@ export default function LeaderboardTable({
   showBadgeAndHeroes = true,
   heroId,
 }: LeaderboardTableProps) {
-  const { data: heroes } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24,
-  });
+  const { data: heroes } = useQuery(heroQueries.assets());
 
   const heroMap = useMemo(() => {
     if (!heroes) return {};

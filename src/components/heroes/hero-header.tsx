@@ -7,16 +7,13 @@ import {
   getOrderedSignatures,
   cn,
 } from "@/lib/utils";
-import {
-  getHeroAbilities,
-  getHeroByName,
-  getTierListData,
-} from "@/lib/data/heroes";
-import { getQueryClient } from "@/app/get-query-client";
 import BorderedImage from "@/components/bordered-image";
 import AbilitySection from "@/components/heroes/ability-section";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { heroQueries } from "@/lib/queries/heroes";
+import { useMemo } from "react";
+import { buildTierList } from "@/components/tierlist/tierlist";
 
 const tabs = [
   { label: "Build", href: "build" },
@@ -26,29 +23,32 @@ const tabs = [
 ];
 
 export default function HeroHeader({ name }: { name: string }) {
-  const queryClient = getQueryClient();
-
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const rank = searchParams.get("rank") ?? "80";
   const timeframe = searchParams.get("timeframe") ?? "patch";
 
-  const { data: hero } = useQuery({
-    queryKey: ["hero", name],
-    queryFn: () => getHeroByName(name),
-  });
+  const { data: hero } = useQuery(
+    heroQueries.hero(name)
+  );
 
   const { data: abilities } = useQuery({
-    queryKey: ["abilities", hero?.id],
-    queryFn: () => getHeroAbilities(hero!.id),
+    ...heroQueries.abilities(hero?.id ?? 0),
     enabled: !!hero,
   });
 
-  const { data: tierList } = useQuery({
-    queryKey: ["tierlist", rank, timeframe],
-    queryFn: () => getTierListData(queryClient, rank, timeframe),
-    staleTime: 1000 * 60 * 30,
-  });
+  const { data: assets } = useQuery(
+    heroQueries.assets()
+  );
+
+  const { data: winRates } = useQuery(
+    heroQueries.winRates(rank, timeframe)
+  );
+
+  const tierList = useMemo(() => {
+    if (!assets || !winRates) return [];
+    return buildTierList(winRates, assets);
+  }, [assets, winRates]);
 
   if (!hero) return null;
 

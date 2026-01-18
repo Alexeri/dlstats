@@ -3,17 +3,14 @@ import MatchStats from "@/components/matches/match-stats";
 import TeamTable from "@/components/matches/team-table";
 import TeamTitle from "@/components/matches/team-title";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getAllHeroesAssets } from "@/lib/data/heroes";
-import { getMatchMetadata } from "@/lib/data/matches";
 import { getPlayersBySteamId } from "@/lib/data/players";
+import { heroQueries } from "@/lib/queries/heroes";
+import { matchQueries } from "@/lib/queries/matches";
 import { cn, formatDuration, formatNumber, groupPlayersByTeam } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
 export default function MatchPageContent({ matchId }: { matchId: number }) {
-  const { data: matchData } = useQuery({
-    queryKey: ["match", matchId],
-    queryFn: () => getMatchMetadata(matchId),
-  });
+  const { data: matchData } = useQuery(matchQueries.metadata(matchId));
 
   const playerIds =
     matchData?.match_info.players
@@ -26,11 +23,7 @@ export default function MatchPageContent({ matchId }: { matchId: number }) {
     enabled: playerIds.length > 0, // prevents running before matchData is ready
   });
 
-  const { data: heroes } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24,
-  });
+  const { data: heroes } = useQuery(heroQueries.assets());
 
   if (!matchData) return null;
 

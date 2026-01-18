@@ -1,23 +1,36 @@
 "use client";
-import { getQueryClient } from "@/app/get-query-client";
 import BorderedImage from "@/components/bordered-image";
-import { getTierListData } from "@/lib/data/heroes";
+import { buildTierList } from "@/components/tierlist/tierlist";
+import { heroQueries } from "@/lib/queries/heroes";
 import { TieredHeroData } from "@/lib/types";
 import { cn, formatHeroName, getWinRateClass } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Swords } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
 
 export default function TierlistSnippet() {
-  const queryClient = getQueryClient();
-  const { data, isLoading, error } = useQuery<TieredHeroData[], Error>({
-    queryKey: ["tierlist", "80", "patch"],
-    queryFn: () => getTierListData(queryClient, "80", "patch"),
-    staleTime: 1000 * 60 * 30,
-  });
+  const {
+    data: assets,
+    isLoading: assetsLoading,
+    error: assetsError,
+  } = useQuery(heroQueries.assets());
+
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useQuery(heroQueries.winRates("80", "7days"));
+
+  const data: TieredHeroData[] = useMemo(() => {
+      if (!assets || !stats) return [];
+      return buildTierList(stats, assets);
+    }, [assets, stats]);
 
   const tierlist = data?.slice(0, 6) ?? [];
 
+  const isLoading = assetsLoading || statsLoading;
+  const error = assetsError || statsError;
   if (isLoading)
     return (
       <div className="bg-blk-800 rounded border border-blk-500 p-4 h-[373px]">
@@ -72,18 +85,18 @@ export default function TierlistSnippet() {
                 <span className="text-sm">{hero.asset?.name}</span>
               </div>
               <div
-            className={cn(
-              "font-bold",
-              hero.tier === "S+" && "text-amber-400",
-              hero.tier === "S" && "text-indigo-400",
-              hero.tier === "A" && "text-sky-400",
-              hero.tier === "B" && "text-emerald-400",
-              hero.tier === "C" && "text-orange-400",
-              hero.tier === "D" && "text-rose-400"
-            )}
-          >
-            {hero.tier}
-          </div>
+                className={cn(
+                  "font-bold",
+                  hero.tier === "S+" && "text-amber-400",
+                  hero.tier === "S" && "text-indigo-400",
+                  hero.tier === "A" && "text-sky-400",
+                  hero.tier === "B" && "text-emerald-400",
+                  hero.tier === "C" && "text-orange-400",
+                  hero.tier === "D" && "text-rose-400",
+                )}
+              >
+                {hero.tier}
+              </div>
               <div className={cn("text-sm font-semibold", winrateColor)}>
                 {hero.winRate}
               </div>

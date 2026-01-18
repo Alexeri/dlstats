@@ -2,8 +2,7 @@
 import FilterData from "@/components/filter-data";
 import LeaderboardTable from "@/components/leaderboards/leaderboards-table";
 import { Button } from "@/components/ui/button";
-import { getAllHeroesAssets } from "@/lib/data/heroes";
-import { getHeroLeaderboard } from "@/lib/data/leaderboards";
+import { heroQueries } from "@/lib/queries/heroes";
 import { formatHeroName, unformatHeroName } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
@@ -19,23 +18,15 @@ export default function HeroLeaderboardsPage() {
   const heroParam = unformatHeroName(params.name as string);
   const region = searchParams.get("region") ?? "Europe";
 
-  const { data: heroes } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24,
-  });
+  const { data: heroes } = useQuery(heroQueries.assets());
+
   const currentHero = heroes?.find(
-    (h) => formatHeroName(h.name) === formatHeroName(heroParam)
+    (h) => formatHeroName(h.name) === formatHeroName(heroParam),
   );
   const heroId = currentHero?.id;
 
-  const {
-    data: leaderboard,
-    isLoading: leaderboardLoading,
-    error: leaderboardError,
-  } = useQuery({
-    queryKey: ["hero-leaderboard", region, heroId],
-    queryFn: () => getHeroLeaderboard(heroId!, region),
+  const { data: leaderboard, isLoading: leaderboardLoading, error: leaderboardError } = useQuery({
+    ...heroQueries.leaderboard(heroId!, region),
     enabled: !!heroId,
   });
 

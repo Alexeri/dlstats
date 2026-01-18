@@ -3,8 +3,8 @@ import MatchHistoryItems from "@/components/players/match-history-items";
 import MatchHistoryTeam from "@/components/players/match-history-team";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
-import { getAllItems } from "@/lib/data/heroes";
-import { getMatchesMetadata } from "@/lib/data/matches";
+import { itemQueries } from "@/lib/queries/items";
+import { matchQueries } from "@/lib/queries/matches";
 import { HeroAsset, MatchHistory, MatchMetadata } from "@/lib/types";
 import {
   calculateKDA,
@@ -55,12 +55,8 @@ export default function MatchHistoryComponent({
     data: fetchedMetadata = [],
     isFetching: metadataFetching,
     error: metadataError,
-  } = useQuery({
-    queryKey: ["match-metadata", matchIds],
-    queryFn: () => getMatchesMetadata(matchIds),
-    enabled: matchIds.length > 0,
-    placeholderData: (prev) => prev,
-  });
+  } = useQuery(matchQueries.metadataArray(matchIds));
+    
 
   useEffect(() => {
     if (!fetchedMetadata?.length) return;
@@ -77,14 +73,10 @@ export default function MatchHistoryComponent({
   }, [fetchedMetadata]);
 
   const {
-    data: allItems,
-    isLoading: itemsLoading,
-    error: itemsError,
-  } = useQuery({
-    queryKey: ["items", "all"],
-    queryFn: getAllItems,
-    staleTime: 1000 * 60 * 60 * 24, // 24h
-  });
+      data: allItems,
+      isLoading: itemsLoading,
+      error: itemsError,
+    } = useQuery(itemQueries.all());
 
   const allItemsMap = useMemo(
     () => Object.fromEntries((allItems ?? []).map((item) => [item.id, item])),

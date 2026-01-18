@@ -3,11 +3,7 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { unformatHeroName } from "@/lib/utils";
 import HeroHeader from "@/components/heroes/hero-header";
 import { getQueryClient } from "@/app/get-query-client";
-import {
-  getHeroAbilities,
-  getHeroByName,
-  getTierListData,
-} from "@/lib/data/heroes";
+import { heroQueries } from "@/lib/queries/heroes";
 
 export default async function HeroLayout({
   children,
@@ -24,22 +20,14 @@ export default async function HeroLayout({
   const queryClient = getQueryClient();
   const unformattedName = unformatHeroName(name);
 
-  // prefetch shared data
-  const hero = await queryClient.fetchQuery({
-    queryKey: ["hero", unformattedName],
-    queryFn: () => getHeroByName(unformattedName),
-  });
+  const hero = await queryClient.fetchQuery(heroQueries.hero(unformattedName));
 
-  await queryClient.prefetchQuery({
-    queryKey: ["abilities", hero.id],
-    queryFn: () => getHeroAbilities(hero.id),
-  });
-
-  await queryClient.prefetchQuery({
-    queryKey: ["tierlist", rank, timeframe],
-    queryFn: () => getTierListData(queryClient, rank, timeframe),
-  });
-  
+  await Promise.all([
+    queryClient.prefetchQuery(heroQueries.abilities(hero.id)),
+    queryClient.prefetchQuery(heroQueries.assets()),
+    queryClient.prefetchQuery(heroQueries.winRates(rank, timeframe)
+    ),
+  ])
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

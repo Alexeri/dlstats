@@ -4,8 +4,8 @@ import BorderedImage from "@/components/bordered-image";
 import MatchHistoryComponent from "@/components/players/match-history";
 import MatchHistoryMostPlayed from "@/components/players/match-history-mostplayed";
 import { Progress } from "@/components/ui/progress";
-import { getAllHeroesAssets } from "@/lib/data/heroes";
-import { getPlayerMatchHistory } from "@/lib/data/players";
+import { heroQueries } from "@/lib/queries/heroes";
+import { matchQueries } from "@/lib/queries/matches";
 import {
   calculateMatchHistoryStats,
   calculateOverallWinRate,
@@ -21,16 +21,9 @@ export default function PlayerPage({ id }: { id: string }) {
     data: matchHistory,
     isLoading: matchHistoryLoading,
     error: matchHistoryError,
-  } = useQuery({
-    queryKey: ["player-match-history", id],
-    queryFn: () => getPlayerMatchHistory(id),
-  });
+  } = useQuery(matchQueries.playerHistory(id));
 
-  const { data: heroes } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24, // 24h
-  });
+  const { data: heroes } = useQuery(heroQueries.assets());
 
   const matchStats = useMemo(() => {
     if (!matchHistory || matchHistory.length === 0) return null;
@@ -49,52 +42,65 @@ export default function PlayerPage({ id }: { id: string }) {
 
   const heroMap = new Map(heroes?.map((h) => [h.id, h]) ?? []);
 
+  const isMatchHistoryReady =
+    !matchHistoryLoading && !!matchHistory && matchHistory.length > 0;
+
   return (
     <div className="">
       <div className="flex gap-2 w-full mt-4">
         <div className="min-w-[325px] flex flex-col gap-2">
-          {overallStats && (
+          {!isMatchHistoryReady ? (
             <>
-              <div className="flex flex-col p-3 rounded bg-blk-800 border">
-                <div className="flex justify-between items-baseline">
-                  <div className="flex gap-1 text-xl font-semibold">
-                    <span
-                      className={cn("", {
-                        "text-green-400": Number(overallStats.winRate) >= 50,
-                        "text-red-400": Number(overallStats.winRate) < 50,
-                      })}
-                    >
-                      {overallStats.winRate}%
-                    </span>
-                    <span>Winrate</span>
-                  </div>
-                  <div className="text-sm text-gray-300">
-                    {overallStats.wins}W - {overallStats.losses}L
-                  </div>
-                </div>
-                <div className="relative h-2 mt-3">
-                  <div
-                    className="absolute top-0 bottom-0 w-[2px] bg-gray-400 z-10"
-                    style={{ left: "50%" }}
-                  />
-                  <Progress
-                    value={Number(overallStats.winRate)}
-                    className="h-full rounded-xs"
-                    indicatorClassName={cn(
-                      "",
-                      Number(overallStats.winRate) >= 50 && "bg-green-400",
-                      Number(overallStats.winRate) < 50 && "bg-red-400"
-                    )}
-                  />
-                </div>
-              </div>
+              <OverallStatsSkeleton />
+              <MostPlayedSkeleton />
             </>
-          )}
-          {matchStats && (
-            <MatchHistoryMostPlayed
-              topHeroes={matchStats.topHeroes ?? []}
-              heroes={heroes ?? []}
-            />
+          ) : (
+            <>
+              {overallStats && (
+                <>
+                  <div className="flex flex-col p-3 rounded bg-blk-800 border">
+                    <div className="flex justify-between items-baseline">
+                      <div className="flex gap-1 text-xl font-semibold">
+                        <span
+                          className={cn("", {
+                            "text-green-400":
+                              Number(overallStats.winRate) >= 50,
+                            "text-red-400": Number(overallStats.winRate) < 50,
+                          })}
+                        >
+                          {overallStats.winRate}%
+                        </span>
+                        <span>Winrate</span>
+                      </div>
+                      <div className="text-sm text-gray-300">
+                        {overallStats.wins}W - {overallStats.losses}L
+                      </div>
+                    </div>
+                    <div className="relative h-2 mt-3">
+                      <div
+                        className="absolute top-0 bottom-0 w-[2px] bg-gray-400 z-10"
+                        style={{ left: "50%" }}
+                      />
+                      <Progress
+                        value={Number(overallStats.winRate)}
+                        className="h-full rounded-xs"
+                        indicatorClassName={cn(
+                          "",
+                          Number(overallStats.winRate) >= 50 && "bg-green-400",
+                          Number(overallStats.winRate) < 50 && "bg-red-400",
+                        )}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+              {matchStats && (
+                <MatchHistoryMostPlayed
+                  topHeroes={matchStats.topHeroes ?? []}
+                  heroes={heroes ?? []}
+                />
+              )}
+            </>
           )}
         </div>
         <div className="w-full flex flex-col gap-2">
@@ -126,8 +132,12 @@ export default function PlayerPage({ id }: { id: string }) {
                       )}
                       <div className="flex flex-col text-sm">
                         <div className="flex gap-1 font-bold">
-                          <p className={cn("", winrateColor)}>{hero.winRate}%</p>
-                          <p className="text-gray-400">{hero.wins}W-{hero.losses}L</p>
+                          <p className={cn("", winrateColor)}>
+                            {hero.winRate}%
+                          </p>
+                          <p className="text-gray-400">
+                            {hero.wins}W-{hero.losses}L
+                          </p>
                         </div>
                         <p className={cn("", kdaColor)}>{hero.kda} KDA</p>
                       </div>
@@ -145,6 +155,20 @@ export default function PlayerPage({ id }: { id: string }) {
           />
         </div>
       </div>
+    </div>
+  );
+}
+
+function OverallStatsSkeleton() {
+  return (
+    <div className="flex flex-col h-[74px] rounded bg-blk-800 border animate-pulse">
+    </div>
+  );
+}
+
+function MostPlayedSkeleton() {
+  return (
+    <div className="bg-blk-800 border rounded h-[350px] animate-pulse space-y-3">
     </div>
   );
 }

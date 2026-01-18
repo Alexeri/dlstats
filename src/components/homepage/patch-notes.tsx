@@ -1,9 +1,9 @@
 "use client";
-import { getPatches } from "@/lib/data/patches";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import DOMPurify from "isomorphic-dompurify";
 import { ArrowRight, NotebookText } from "lucide-react";
+import { patchQueries } from "@/lib/queries/patches";
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -15,15 +15,7 @@ function formatDate(dateString: string): string {
 }
 
 export default function PatchNotes() {
-  const {
-    data: patches,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["patches", "latest"],
-    queryFn: getPatches,
-    staleTime: 1000 * 60 * 60,
-  });
+  const { data: patches, isLoading, error } = useQuery(patchQueries.history());
 
   if (isLoading)
     return (
@@ -54,9 +46,7 @@ export default function PatchNotes() {
       <div className="flex flex-col gap-2 mt-4">
         {latest.map((patch) => {
           const cleanHTML = DOMPurify.sanitize(patch.content_encoded);
-          const preview = cleanHTML
-            .replace(/<[^>]+>/g, "") 
-            .slice(0, 160);
+          const preview = cleanHTML.replace(/<[^>]+>/g, "").slice(0, 160);
           return (
             <Link
               key={patch.link}
@@ -65,9 +55,7 @@ export default function PatchNotes() {
               rel="noopener noreferrer"
               className="pb-2 bg-blk-700 p-2 rounded hover:bg-blk-600 transition-all"
             >
-              <div className="text-primary font-semibold">
-                {patch.title}
-              </div>
+              <div className="text-primary font-semibold">{patch.title}</div>
               <div className="text-gray-400 text-xs">
                 {formatDate(patch.pub_date)}
               </div>
@@ -89,7 +77,7 @@ export default function PatchNotes() {
           rel="noopener noreferrer"
           className="text-sm text-primary hover:bg-blk-700 px-2 py-1 rounded inline-flex items-center gap-1 transition-all"
         >
-          View all patch notes <ArrowRight size={12}/>
+          View all patch notes <ArrowRight size={12} />
         </Link>
       </div>
     </div>
