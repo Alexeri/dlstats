@@ -6,20 +6,16 @@ import { Input } from "@/components/ui/input";
 import { useDialog } from "../providers/dialog-provider";
 import { useQuery } from "@tanstack/react-query";
 import { cn, formatHeroName } from "@/lib/utils";
-import { getAllHeroesAssets } from "@/lib/data/heroes";
 import { Search, X } from "lucide-react";
 import Link from "next/link";
 import BorderedImage from "@/components/bordered-image";
+import { heroQueries } from "@/lib/queries/heroes";
 
 export default function SearchDialog() {
   const { isOpen, close } = useDialog();
   const [query, setQuery] = React.useState("");
 
-  const { data: heroes } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24,
-  });
+  const { data: heroes } = useQuery(heroQueries.assets());
 
   const filteredHeroes = React.useMemo(() => {
     if (!heroes) return [];
@@ -43,7 +39,7 @@ export default function SearchDialog() {
               <Search size="18" className="text-muted-foreground" />
             </div>
             <Input
-              placeholder="Search Player or Hero"
+              placeholder="Search Hero"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="dark:bg-blk-800 border-blk-500 pl-10 placeholder:text-gray-300 rounded shadow-lg shadow-brand/10"

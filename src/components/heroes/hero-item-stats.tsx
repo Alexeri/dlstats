@@ -1,16 +1,11 @@
-import { getQueryClient } from "@/app/get-query-client";
 import BorderedImage from "@/components/bordered-image";
 import ItemCard from "@/components/item-card";
-import {
-  getAllItems,
-  getItemStatsByHero,
-  getTierListData,
-} from "@/lib/data/heroes";
+import { buildTierList } from "@/components/tierlist/tierlist";
+import { heroQueries } from "@/lib/queries/heroes";
+import { itemQueries } from "@/lib/queries/items";
 import {
   EnrichedHeroItemStat,
   HeroItemStat,
-  Item,
-  TieredHeroData,
 } from "@/lib/types";
 import {
   cn,
@@ -21,7 +16,7 @@ import {
 } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 export default function HeroItemStats() {
   const params = useParams();
@@ -30,50 +25,46 @@ export default function HeroItemStats() {
   const rank = searchParams.get("rank") ?? "80";
   const timeframe = searchParams.get("timeframe") ?? "patch";
 
-  const queryClient = getQueryClient();
-  const hero = queryClient.getQueryData<{ id: number }>(["hero", name]);
-
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const [tierFilters, setTierFilters] = useState<{
-    weapon: number | "all";
-    vitality: number | "all";
-    spirit: number | "all";
-  }>({
-    weapon: "all",
-    vitality: "all",
-    spirit: "all",
+  const [tierFilters, setTierFilters] = useState({
+    weapon: "all" as number | "all",
+    vitality: "all" as number | "all",
+    spirit: "all" as number | "all",
   });
+
+  const { data: hero } = useQuery(heroQueries.hero(name));
 
   const {
     data: allItems,
     isLoading: itemsLoading,
     error: itemsError,
-  } = useQuery<Item[]>({
-    queryKey: ["items", "all"],
-    queryFn: getAllItems,
-    staleTime: 1000 * 60 * 60 * 24, // 24h
-  });
+  } = useQuery(itemQueries.all());
 
-  const {
+   const {
     data: itemStats,
     isLoading: itemStatsLoading,
     error: itemStatsError,
   } = useQuery<HeroItemStat[]>({
-    queryKey: ["item-stats", hero?.id, rank, timeframe],
-    queryFn: () =>
-      getItemStatsByHero({
-        hero_id: hero!.id,
-        min_average_badge: rank,
-        timeframe,
-      }),
+    ...itemQueries.heroStats(
+      hero?.id ?? 0,
+      rank,
+      timeframe
+    ),
     enabled: !!hero,
   });
 
-  const { data: tierList } = useQuery<TieredHeroData[]>({
-    queryKey: ["tierlist", rank, timeframe],
-    queryFn: () => getTierListData(queryClient, rank, timeframe),
-    staleTime: 1000 * 60 * 30,
-  });
+  const { data: assets } = useQuery(
+    heroQueries.assets()
+  );
+
+  const { data: winRates } = useQuery(
+    heroQueries.winRates(rank, timeframe)
+  );
+
+  const tierList = useMemo(() => {
+    if (!assets || !winRates) return [];
+    return buildTierList(winRates, assets);
+  }, [assets, winRates]);
 
   const isLoading = itemsLoading || itemStatsLoading;
   const error = itemsError ?? itemStatsError;
@@ -93,12 +84,12 @@ export default function HeroItemStats() {
               ))}
             </div>
             <div className="flex gap-3 mt-2 overflow-hidden">
-              {[...Array(6)].map((_, j) => (
+              {[...Array(32)].map((_, j) => (
                 <div key={j} className="flex flex-col items-center gap-1">
                   <div className="size-12 bg-blk-600 rounded" />
                   <div className="h-3 w-10 bg-blk-600 rounded" />
-                  <div className="h-3 w-8 bg-blk-600 rounded" />
-                  <div className="h-3 w-6 bg-blk-600 rounded" />
+                  <div className="h-3 w-10 bg-blk-600 rounded" />
+                  <div className="h-3 w-10 bg-blk-600 rounded" />
                 </div>
               ))}
             </div>
@@ -107,6 +98,8 @@ export default function HeroItemStats() {
       </div>
     );
   }
+
+  
 
   const enriched: EnrichedHeroItemStat[] =
     itemStats
@@ -117,7 +110,7 @@ export default function HeroItemStats() {
       .filter((s): s is EnrichedHeroItemStat => s !== null) ?? [];
 
   const heroStats = tierList?.find(
-    (h) => formatHeroName(h.asset?.name ?? "") === formatHeroName(name)
+    (h) => formatHeroName(h.asset?.name ?? "") === formatHeroName(name),
   );
 
   const totalMatches = heroStats?.matches ?? 0;
@@ -139,7 +132,7 @@ export default function HeroItemStats() {
       weapon: [] as EnrichedHeroItemStat[],
       vitality: [] as EnrichedHeroItemStat[],
       spirit: [] as EnrichedHeroItemStat[],
-    }
+    },
   );
   if (error || itemsError)
     return <p>Error loading item stats: {(error ?? itemsError)?.message}</p>;
@@ -181,7 +174,7 @@ export default function HeroItemStats() {
                       "px-2 py-1 text-xs rounded transition-colors cursor-pointer",
                       currentFilter === tier
                         ? "bg-brand/50 text-white "
-                        : "bg-transparent hover:bg-brand/30"
+                        : "bg-transparent hover:bg-brand/30",
                     )}
                   >
                     {tier === "all" ? "All" : `T${tier}`}
@@ -195,7 +188,7 @@ export default function HeroItemStats() {
                       "flex items-center justify-center capitalize h-12",
                       type === "weapon" && "text-weapon",
                       type === "vitality" && "text-vitality",
-                      type === "spirit" && "text-spirit"
+                      type === "spirit" && "text-spirit",
                     )}
                   >
                     {type}
@@ -248,10 +241,10 @@ export default function HeroItemStats() {
                                       item.item_slot_type === "weapon"
                                         ? "bg-weapon"
                                         : item.item_slot_type === "vitality"
-                                        ? "bg-vitality"
-                                        : item.item_slot_type === "spirit"
-                                        ? "bg-spirit"
-                                        : ""
+                                          ? "bg-vitality"
+                                          : item.item_slot_type === "spirit"
+                                            ? "bg-spirit"
+                                            : "",
                                     )}
                                   >
                                     {item.item_tier}

@@ -1,5 +1,5 @@
 import BorderedImage from "@/components/bordered-image";
-import { getAllHeroesAssets } from "@/lib/data/heroes";
+import { heroQueries } from "@/lib/queries/heroes";
 import { MatchMetadata, MatchRecent } from "@/lib/types";
 import { cn, formatDuration, formatNumber } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -11,11 +11,7 @@ interface MatchLinkProps {
 }
 
 export default function MatchLink({ match }: MatchLinkProps) {
-  const { data: heroes } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24,
-  });
+  const { data: heroes } = useQuery(heroQueries.assets());
 
   const heroMap = new Map(heroes?.map((h) => [h.id, h]) ?? []);
 

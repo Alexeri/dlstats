@@ -3,7 +3,7 @@
 import FilterData from "@/components/filter-data";
 import LeaderboardTable from "@/components/leaderboards/leaderboards-table";
 import { Button } from "@/components/ui/button";
-import { getLeaderboard } from "@/lib/data/leaderboards";
+import { leaderboardsQueries } from "@/lib/queries/leaderboards";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -11,14 +11,8 @@ const PAGE_SIZE = 50;
 
 export default function LeaderboardsContent({ region }: { region: string }) {
   const [page, setPage] = useState(0);
-  const {
-    data: leaderboard,
-    isLoading: leaderboardLoading,
-    error: leaderboardError,
-  } = useQuery({
-    queryKey: ["leaderboard", region ?? "Europe"],
-    queryFn: () => getLeaderboard(region ?? "Europe"),
-  });
+
+  const { data: leaderboard, isLoading: leaderboardLoading, error: leaderboardError } = useQuery(leaderboardsQueries.data(region ?? "Europe"));
 
   if (leaderboardLoading) return <p>Loading leaderboard...</p>;
   if (leaderboardError)

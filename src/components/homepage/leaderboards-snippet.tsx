@@ -1,7 +1,8 @@
 "use client";
 import BorderedImage from "@/components/bordered-image";
-import { getAllHeroesAssets } from "@/lib/data/heroes";
-import { getLeaderboard } from "@/lib/data/leaderboards";
+import { heroQueries } from "@/lib/queries/heroes";
+import { leaderboardsQueries } from "@/lib/queries/leaderboards";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ChartNoAxesColumnIncreasing } from "lucide-react";
 import Link from "next/link";
@@ -12,16 +13,9 @@ export default function LeaderboardsSnippet() {
     data: leaderboard,
     isLoading: leaderboardLoading,
     error: leaderboardError,
-  } = useQuery({
-    queryKey: ["leaderboard", "Europe"],
-    queryFn: () => getLeaderboard("Europe"),
-  });
+  } = useQuery(leaderboardsQueries.data("Europe"));
 
-  const { data: heroes } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24, // 24h
-  });
+  const { data: heroes } = useQuery(heroQueries.assets());
 
   const heroMap = useMemo(() => {
     if (!heroes) return {};
@@ -64,15 +58,22 @@ export default function LeaderboardsSnippet() {
       </div>
       <div className="flex flex-col">
         {top6.map((player, i) => {
-          return (
-            <Link
-              href={`/players/${player.possible_account_ids[0]}`}
-              key={i}
-              className="grid grid-cols-4 items-center text-center py-1 border-b last:opacity-60 hover:bg-blk-700 transition-all"
+          const accountId = player.possible_account_ids?.[0];
+          const isLast = i === top6.length - 1;
+
+          const RowContent = (
+            <div
+              className={cn(
+                "grid grid-cols-4 items-center text-center py-1 border-b transition-all",
+                accountId
+                  ? "hover:bg-blk-700 cursor-pointer"
+                  : "cursor-default",
+                (!accountId || isLast) && "opacity-60",
+              )}
             >
               <div>{player.rank}</div>
               <div className="col-span-2">{player.account_name}</div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 justify-center">
                 {player.top_hero_ids.slice(0, 3).map((id) => {
                   const hero = heroMap[id];
                   if (!hero) return null;
@@ -87,7 +88,15 @@ export default function LeaderboardsSnippet() {
                   );
                 })}
               </div>
+            </div>
+          );
+
+          return accountId ? (
+            <Link key={i} href={`/players/${accountId}`}>
+              {RowContent}
             </Link>
+          ) : (
+            <div key={i}>{RowContent}</div>
           );
         })}
       </div>

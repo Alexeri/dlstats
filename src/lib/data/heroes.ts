@@ -3,10 +3,9 @@ import {
   HeroCounterStat,
   HeroWinRate,
   Item,
-  TieredHeroData,
 } from "@/lib/types";
-import { generateTierList, resolveTimeframeToUnix } from "@/lib/utils";
-import { QueryClient } from "@tanstack/react-query";
+import { resolveTimeframeToUnix } from "@/lib/utils";
+
 
 export async function getHeroWinRate(
   rank?: string,
@@ -47,42 +46,6 @@ export async function getAllHeroesAssets(): Promise<HeroAsset[]> {
   }
 
   return res.json();
-}
-
-export async function getTierListData(
-  queryClient: QueryClient,
-  rank?: string,
-  timeframe?: string
-): Promise<TieredHeroData[]> {
-  let heroAssets: HeroAsset[];
-
-  if (queryClient) {
-    heroAssets =
-      queryClient.getQueryData<HeroAsset[]>(["heroes-assets"]) ??
-      (await queryClient.ensureQueryData<HeroAsset[]>({
-        queryKey: ["heroes-assets"],
-        queryFn: getAllHeroesAssets,
-        staleTime: 1000 * 60 * 60 * 24,
-      })) ??
-      (await getAllHeroesAssets());
-  } else {
-    heroAssets = await getAllHeroesAssets();
-  }
-
-  const heroStats = await getHeroWinRate(rank, timeframe);
-
-  const combined = heroStats.map((stat) => {
-    const asset = heroAssets.find((h) => h.id === stat.hero_id);
-    const winRate = stat.matches ? (stat.wins / stat.matches) * 100 : 0;
-    return { ...stat, winRate, asset };
-  });
-
-  const totalMatches = heroStats.reduce(
-    (total, hero) => total + hero.matches,
-    0
-  );
-
-  return generateTierList(combined, totalMatches);
 }
 
 export async function getHeroByName(name: string): Promise<HeroAsset> {

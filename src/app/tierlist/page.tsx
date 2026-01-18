@@ -1,6 +1,6 @@
 import { getQueryClient } from "@/app/get-query-client";
 import Tierlist from "@/components/tierlist/tierlist";
-import { getTierListData } from "@/lib/data/heroes";
+import { heroQueries } from "@/lib/queries/heroes";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 export default async function TierlistPage({
@@ -11,11 +11,10 @@ export default async function TierlistPage({
   const { rank = "80", timeframe = "patch" } = (await searchParams) ?? {};
   const queryClient = getQueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: ["tierlist", rank, timeframe],
-    queryFn: () => getTierListData(queryClient, rank, timeframe),
-    staleTime: 1000 * 60 * 30,
-  });
+  await Promise.all([
+    queryClient.prefetchQuery(heroQueries.assets()),
+    queryClient.prefetchQuery(heroQueries.winRates(rank, timeframe)),
+  ]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

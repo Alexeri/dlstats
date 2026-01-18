@@ -1,7 +1,7 @@
 import BorderedImage from "@/components/bordered-image";
 import PlayerItems from "@/components/matches/player-items";
 import { Progress } from "@/components/ui/progress";
-import { getAllItems } from "@/lib/data/heroes";
+import { itemQueries } from "@/lib/queries/items";
 import { HeroAsset, MatchMetadataPlayer, Player } from "@/lib/types";
 import { calculateKDA, cn, formatStatNumber, getKDAColor } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -22,21 +22,17 @@ interface TeamTableProps {
 }
 
 export default function TeamTable({ team, players, heroes }: TeamTableProps) {
-  const { data: allItems, error: itemsError } = useQuery({
-    queryKey: ["items", "all"],
-    queryFn: getAllItems,
-    staleTime: 1000 * 60 * 60 * 24, // 24h
-  });
+  const { data: allItems, error: itemsError } = useQuery(itemQueries.all());
 
   if (itemsError) console.warn("Failed to load items data", itemsError);
 
   const itemMap = useMemo(
     () => (allItems ? Object.fromEntries(allItems.map((i) => [i.id, i])) : {}),
-    [allItems]
+    [allItems],
   );
 
   const maxDamage = Math.max(
-    ...team.players.map((p) => p.stats.at(-1)?.player_damage || 0)
+    ...team.players.map((p) => p.stats.at(-1)?.player_damage || 0),
   );
 
   return (
@@ -46,7 +42,7 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
           className={cn(
             "font-bold text-sm",
             team.name === "The Amber Hand" && "text-amberhand",
-            team.name === "The Sapphire Flame" && "text-sapphireflame"
+            team.name === "The Sapphire Flame" && "text-sapphireflame",
           )}
         >
           {team.name}
@@ -63,7 +59,7 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
         const kdaValue = calculateKDA(
           player.kills,
           player.deaths,
-          player.assists
+          player.assists,
         );
         const kdaColor = getKDAColor(parseFloat(kdaValue));
 
@@ -116,7 +112,7 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
                 value={dmgPercent}
                 className="h-2 mt-1 rounded-xs"
                 indicatorClassName={cn(
-                  player.team === 0 ? "bg-amberhand" : "bg-sapphireflame"
+                  player.team === 0 ? "bg-amberhand" : "bg-sapphireflame",
                 )}
               />
             </div>
@@ -129,7 +125,7 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
               key={index}
               href={`/players/${player.account_id}`}
               className={cn(
-                "grid grid-cols-5 px-3 py-1 border-b last:border-b-0 bg-blk-800 hover:bg-blk-700 transition-colors cursor-pointer last:rounded"
+                "grid grid-cols-5 px-3 py-1 border-b last:border-b-0 bg-blk-800 hover:bg-blk-700 transition-colors cursor-pointer last:rounded",
               )}
             >
               {content}
@@ -141,7 +137,7 @@ export default function TeamTable({ team, players, heroes }: TeamTableProps) {
           <div
             key={index}
             className={cn(
-              "grid grid-cols-5 px-3 py-1 border-b last:border-b-0 bg-blk-800 transition-colors"
+              "grid grid-cols-5 px-3 py-1 border-b last:border-b-0 bg-blk-800 transition-colors",
             )}
           >
             {content}

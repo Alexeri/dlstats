@@ -8,8 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAllHeroesAssets } from "@/lib/data/heroes";
-import { getPlayerMatchHistory } from "@/lib/data/players";
+import { heroQueries } from "@/lib/queries/heroes";
+import { matchQueries } from "@/lib/queries/matches";
 import { HeroAsset } from "@/lib/types";
 import {
   calculateHeroStatsFromMatches,
@@ -39,16 +39,11 @@ export default function PlayersHeroPage() {
     data: matchHistory,
     isLoading: matchHistoryLoading,
     error: matchHistoryError,
-  } = useQuery({
-    queryKey: ["player-match-history", id],
-    queryFn: () => getPlayerMatchHistory(id),
-  });
+  } = useQuery(matchQueries.playerHistory(id));
 
-  const { data: heroes, isLoading: heroesLoading } = useQuery({
-    queryKey: ["hero-assets"],
-    queryFn: getAllHeroesAssets,
-    staleTime: 1000 * 60 * 60 * 24,
-  });
+  const { data: heroes, isLoading: heroesLoading } = useQuery(
+    heroQueries.assets(),
+  );
 
   const heroMap = useMemo<Record<number, HeroAsset>>(() => {
     if (!heroes) return {};
@@ -197,7 +192,7 @@ function HeroStatsTable({ data, heroMap }: HeroStatsTableProps) {
                 onClick={header.column.getToggleSortingHandler()}
                 className={cn(
                   "flex items-center uppercase text-xs font-bold cursor-pointer select-none",
-                  header.column.getIsSorted() ? "text-white" : "text-gray-400"
+                  header.column.getIsSorted() ? "text-white" : "text-gray-400",
                 )}
               >
                 {header.isPlaceholder

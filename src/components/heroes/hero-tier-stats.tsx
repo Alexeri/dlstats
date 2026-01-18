@@ -10,9 +10,9 @@ import {
   formatStatNumber,
 } from "@/lib/utils";
 import { useParams, useSearchParams } from "next/navigation";
-import { getTierListData } from "@/lib/data/heroes";
-import { getQueryClient } from "@/app/get-query-client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { heroQueries } from "@/lib/queries/heroes";
+import { buildTierList } from "@/components/tierlist/tierlist";
 
 export default function HeroTierStats() {
   const [hydrated, setHydrated] = useState(false);
@@ -24,23 +24,29 @@ export default function HeroTierStats() {
   const rank = searchParams.get("rank") ?? "80";
   const timeframe = searchParams.get("timeframe") ?? "patch";
 
-  const queryClient = getQueryClient();
+  const {
+    data: assets,
+    isLoading: assetsLoading,
+    error: assetsError,
+  } = useQuery(heroQueries.assets());
 
   const {
-    data: tierList,
-    isLoading,
-    error,
-  } = useQuery<TieredHeroData[]>({
-    queryKey: ["tierlist", rank, timeframe],
-    queryFn: () => getTierListData(queryClient, rank, timeframe),
-    staleTime: 1000 * 60 * 30,
-  });
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useQuery(heroQueries.winRates(rank, timeframe));
+
+  const tierList: TieredHeroData[] = useMemo(() => {
+    if (!assets || !stats) return [];
+    return buildTierList(stats, assets);
+  }, [assets, stats]);
+
 
   const heroStats = tierList?.find(
-    (h) => formatHeroName(h.asset?.name ?? "") === formatHeroName(name)
+    (h) => formatHeroName(h.asset?.name ?? "") === formatHeroName(name),
   );
 
-  const showSkeleton = !hydrated || isLoading;
+  const showSkeleton = !hydrated || assetsLoading || statsLoading;
 
   if (showSkeleton) {
     return (
@@ -48,8 +54,9 @@ export default function HeroTierStats() {
     );
   }
 
+  const error = assetsError ?? statsError;
   if (error) return <p>Error loading hero stats: {(error as Error).message}</p>;
-  if (!tierList || !heroStats)
+  if (!tierList.length || !heroStats)
     return (
       <p className="text-gray-400 text-sm">No stats available for this hero.</p>
     );
@@ -63,7 +70,7 @@ export default function HeroTierStats() {
         heroStats.tier === "A" && "border-b-sky-400",
         heroStats.tier === "B" && "border-b-emerald-400",
         heroStats.tier === "C" && "border-b-orange-400",
-        heroStats.tier === "D" && "border-b-rose-400"
+        heroStats.tier === "D" && "border-b-rose-400",
       )}
     >
       {/* Tier */}
@@ -76,7 +83,7 @@ export default function HeroTierStats() {
             heroStats.tier === "A" && "text-sky-400",
             heroStats.tier === "B" && "text-emerald-400",
             heroStats.tier === "C" && "text-orange-400",
-            heroStats.tier === "D" && "text-rose-400"
+            heroStats.tier === "D" && "text-rose-400",
           )}
         >
           {heroStats.tier}
@@ -89,7 +96,7 @@ export default function HeroTierStats() {
         <span
           className={cn(
             "text-2xl font-bold",
-            getWinRateClass(heroStats.winRate)
+            getWinRateClass(heroStats.winRate),
           )}
         >
           {heroStats.winRate}
